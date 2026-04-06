@@ -1,0 +1,50 @@
+# Font
+font-family = JetBrainsMono Nerd Font
+font-size = 14
+
+# Theme (dark, matches tmux status bar)
+background = #1a1b26
+foreground = #c0caf5
+cursor-color = #bb9af7
+selection-background = #292e42
+selection-foreground = #c0caf5
+
+# Palette (Tokyo Night inspired)
+palette = 0=#15161e
+palette = 1=#f7768e
+palette = 2=#9ece6a
+palette = 3=#e0af68
+palette = 4=#7aa2f7
+palette = 5=#bb9af7
+palette = 6=#7dcfff
+palette = 7=#a9b1d6
+palette = 8=#414868
+palette = 9=#f7768e
+palette = 10=#9ece6a
+palette = 11=#e0af68
+palette = 12=#7aa2f7
+palette = 13=#bb9af7
+palette = 14=#7dcfff
+palette = 15=#c0caf5
+
+# Window
+window-padding-x = 8
+window-padding-y = 4
+window-decoration = false
+macos-titlebar-style = hidden
+
+# No native tabs (use tmux)
+keybind = super+t=unbind
+keybind = super+n=unbind
+
+# Cmd+F / Cmd+P sends Alt+f (tmux fuzzy search windows)
+keybind = super+f=text:\x1bf
+keybind = super+p=text:\x1bf
+
+# Alt key sends ESC+ (needed for tmux Alt bindings)
+macos-option-as-alt = true
+
+# Misc
+copy-on-select = clipboard
+confirm-close-surface = false
+mouse-hide-while-typing = true

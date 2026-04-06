@@ -1,0 +1,16 @@
+# OS
+.DS_Store
+
+# Zed local data (conversations, prompts db, extensions cache)
+zed/.config/zed/conversations/
+zed/.config/zed/prompts/
+zed/.config/zed/extensions/
+zed/.config/zed/settings_backup.json
+
+# Karabiner auto-backups
+karabiner/.config/karabiner/automatic_backups/
+karabiner/.config/karabiner/assets/
+
+# Zsh generated files
+zsh/.zcompdump*
+zsh/.zsh_history

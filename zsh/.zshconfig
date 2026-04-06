@@ -1,0 +1,57 @@
+plugins=(z history-substring-search rails web-search git-auto-fetch macos)
+
+setopt autocd              # change directory just by typing its name
+unsetopt correct
+setopt interactivecomments # allow comments in interactive mode
+setopt magicequalsubst     # enable filename expansion for arguments of the form ‘anything=expression’
+setopt nonomatch           # hide error message if there is no match for the pattern
+setopt notify              # report the status of background jobs immediately
+setopt numericglobsort     # sort filenames numerically when it makes sense
+setopt promptsubst         # enable command substitution in prompt
+
+HYPHEN_INSENSITIVE="true"
+DISABLE_UNTRACKED_FILES_DIRTY="true"
+WORDCHARS=${WORDCHARS//\/} # Don't consider certain characters part of the word
+
+#hide EOL sign ('%')
+PROMPT_EOL_MARK=""
+
+# enable completion features
+autoload -Uz compinit
+compinit -d ~/.cache/zcompdump
+zstyle ':completion:*:*:*:*:*' menu select
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' # case insensitive tab completion
+
+# History configurations
+setopt hist_ignore_dups       # ignore duplicated commands history list
+setopt hist_ignore_space      # ignore commands that start with space
+setopt hist_verify            # show command with history expansion to user before running it
+setopt share_history          # share command history data
+
+# configure `time` format
+TIMEFMT=$'real\t%E\nuser\t%U\nsys\t%S\ncpu\t%P'
+
+# enable auto-suggestions based on the history
+if [ -f /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]; then
+    . /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+    # change suggestion color
+    ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=#999'
+fi
+
+# enable command-not-found if installed
+if [ -f /etc/zsh_command_not_found ]; then
+    . /etc/zsh_command_not_found
+fi
+
+autoload -U compinit
+compinit -i
+
+export GPG_TTY=$(tty)
+
+source $ZSH/oh-my-zsh.sh
+
+# Push prompt to bottom (tmux only)
+if [[ -n "$TMUX" ]]; then
+  printf '\n%.0s' {1..$(( LINES - 1 ))}
+  alias clear='command clear && printf "\n%.0s" {1..$(( LINES - 1 ))}'
+fi

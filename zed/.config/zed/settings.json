@@ -1,0 +1,195 @@
+
+// ============================================
+// ⚙️ ZED - Configuration principale
+// ============================================
+{
+  // --------------------------------------------
+  // 🔃 Triage
+  // --------------------------------------------
+  "ensure_final_newline_on_save": false,
+  "remove_trailing_whitespace_on_save": false,
+  "auto_update": false,
+  "project_panel": {
+    "hide_hidden": false
+  },
+  "completions": {},
+  "use_system_window_tabs": true,
+  "preview_tabs": {
+    "enabled": true,
+    "enable_keep_preview_on_code_navigation": true
+  },
+  "tab_bar": {
+    "show_nav_history_buttons": true
+  },
+  "tabs": {
+    "show_diagnostics": "errors",
+    "file_icons": true,
+    "git_status": true
+  },
+  "title_bar": {
+    "show_menus": false,
+    "show_user_picture": true,
+    "show_onboarding_banner": true,
+    "show_project_items": true,
+    "show_branch_icon": false
+  },
+  "file_finder": {
+    "file_icons": true
+  },
+  "close_on_file_delete": true,
+  // --------------------------------------------
+  // 🧠 AI / Agents
+  // --------------------------------------------
+  "agent": {
+    "default_profile": "write",
+    "default_model": {
+      "provider": "zed.dev",
+      "model": "claude-opus-4-5"
+    },
+    "model_parameters": []
+  },
+  "agent_servers": {
+    "claude": {
+      "default_mode": "bypassPermissions"
+    },
+    "codex": {
+      "default_mode": "full-access"
+    }
+  },
+  // --------------------------------------------
+  // 🌐 Context Servers (MCP / Databases)
+  // --------------------------------------------
+  "context_servers": {
+    "postgres-context-server": {
+      "enabled": true,
+      "settings": {
+        "database_url": "postgresql://@localhost:5432/apti_connect_development"
+      }
+    },
+    "mcp-server-context7": {
+      "enabled": true,
+      "settings": {
+        "context7_api_key": "YOUR_CONTEXT7_API_KEY"
+      }
+    }
+  },
+  // --------------------------------------------
+  // 💻 Interface / UI
+  // --------------------------------------------
+  "theme": {
+    "mode": "system",
+    "light": "One Light",
+    "dark": "One Dark"
+  },
+  "ui_font_size": 18,
+  "buffer_font_size": 16,
+  "relative_line_numbers": "enabled",
+  "buffer_font_features": {
+    "calt": false
+  },
+  // --------------------------------------------
+  // 🖊️ Éditeur / Comportement
+  // --------------------------------------------
+  "prettier": {
+    "allowed": true
+  },
+  "format_on_save": "off",
+  "show_edit_predictions": true,
+  "autosave": "on_focus_change",
+  "base_keymap": "VSCode",
+  // --------------------------------------------
+  // 🎯 Vim & Modes
+  // --------------------------------------------
+  "vim_mode": true,
+  "vim": {
+    "use_system_clipboard": "on_yank",
+    "highlight_on_yank_duration": 400,
+    "use_smartcase_find": true
+  },
+  "helix_mode": false,
+  // --------------------------------------------
+  // 🖥️ Terminal
+  // --------------------------------------------
+  "terminal": {
+    "option_as_meta": false,
+    "font_size": 16.0
+  },
+  // --------------------------------------------
+  // 🧬 Languages (Vue, JSON, Ruby…)
+  // --------------------------------------------
+  "languages": {
+    "Vue.js": {
+      "tab_size": 2,
+      "language_servers": [
+        "vue-language-server",
+        "tailwindcss-language-server",
+        "eslint"
+      ],
+      "code_actions_on_format": {
+        "source.fixAll.eslint": true
+      }
+    },
+    "TypeScript": {
+      "code_actions_on_format": {
+        "source.fixAll.eslint": true
+      }
+    },
+    "JSONC": {
+      "show_edit_predictions": true
+    },
+    // ---> Ruby : Ruby LSP + StandardRB
+    "Ruby": {
+      "language_servers": ["ruby-lsp", "!solargraph", "!steep"]
+    },
+    "Python": {
+      "language_servers": ["ty", "!basedpyright", "..."]
+    }
+  },
+  // --------------------------------------------
+  // 🔧 LSP Configuration
+  // --------------------------------------------
+  "lsp": {
+    "ruby-lsp": {
+      "initialization_options": {
+        "formatter": "standard",
+        "linters": ["standard"]
+      }
+    }
+  },
+  // --------------------------------------------
+  // ⚠️ Privacy / Telemetry
+  // --------------------------------------------
+  "telemetry": {
+    "diagnostics": false,
+    "metrics": false
+  },
+  // --------------------------------------------
+  // 🔍 Edit Predictions (AI inline suggestions)
+  // --------------------------------------------
+  "edit_predictions": {
+    "mode": "eager"
+  },
+  "features": {
+    "edit_prediction_provider": "zed"
+  },
+
+  // --------------------------------------------
+  // 🔍 Extensions
+  // --------------------------------------------
+  "auto_install_extensions": {
+    "dockerfile": true,
+    "git-firefly": true,
+    "html": true,
+    "log": true,
+    "mcp-server-context7": true,
+    "php": true,
+    "postgres-context-server": true,
+    "ruby": true,
+    "scss": true,
+    "sql": true,
+    "twig": true,
+    "vue": true,
+    "wakatime": true,
+    "xml": true
+  }
+}

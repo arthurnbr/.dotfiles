@@ -1,0 +1,30 @@
+# fnm
+FNM_PATH="/opt/homebrew/opt/fnm/bin"
+if [ -d "$FNM_PATH" ]; then
+  export PATH="$FNM_DIR/bin:$PATH"
+  eval "`fnm env`"
+fi
+
+# bun completions
+[ -s "/Users/stani/.bun/_bun" ] && source "/Users/stani/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+
+# fzf
+source <(fzf --zsh)
+export FZF_DEFAULT_OPTS="--height 40% --reverse --border --color=fg:#c0caf5,bg:#1a1b26,hl:#bb9af7,fg+:#c0caf5,bg+:#292e42,hl+:#7dcfff,info:#7aa2f7,prompt:#7dcfff,pointer:#bb9af7,marker:#9ece6a,spinner:#bb9af7"
+export FZF_CTRL_T_OPTS="--preview 'bat --color=always --line-range :200 {} 2>/dev/null || ls -la {}'"
+export FZF_ALT_C_OPTS="--preview 'eza --tree --level=2 --color=always {}'"
+
+# zoxide
+eval "$(zoxide init zsh)"
+
+# zsh-syntax-highlighting (must be before autosuggestions)
+source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+# zsh-autosuggestions
+source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=#555555'
+ZSH_AUTOSUGGEST_STRATEGY=(history completion)

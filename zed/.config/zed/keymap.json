@@ -1,0 +1,127 @@
+
+[
+  {
+    "bindings": {
+      "cmd-shift-s enter": "editor::Format",
+      "cmd-$": "workspace::NewTerminal",
+      "cmd-shift-e": "workspace::CloseAllDocks",
+      "f1 enter": "pane::RevealInProjectPanel",
+      "cmd-)": "workspace::Reload",
+      "cmd-e": "project_panel::ToggleFocus",
+      "cmd-/": ["editor::ToggleComments", { "advance_downwards": false }],
+      "cmd-shift-u": ["task::Spawn", { "task_name": "lint-fix" }],
+      "cmd-shift-y": ["task::Spawn", { "task_name": "eslint-fix" }]
+    }
+  },
+  {
+    "context": "Editor && mode == full",
+    "bindings": {
+      "cmd-e": "project_panel::ToggleFocus"
+    }
+  },
+  {
+    "context": "vim_mode == normal",
+    "bindings": {
+      "shift-u": "editor::Redo"
+    }
+  },
+  {
+    "context": "vim_mode == insert",
+    "bindings": {
+      "j j": "vim::NormalBefore"
+    }
+  },
+  {
+    "context": "Editor && edit_prediction",
+    "bindings": {
+      "fn-tab": "editor::AcceptEditPrediction"
+    }
+  },
+  {
+    "context": "Editor && edit_prediction_conflict",
+    "bindings": {
+      "fn-tab": "editor::AcceptEditPrediction"
+    }
+  },
+  {
+    "context": "(Editor && extension == ts && vim_mode == normal)",
+    "bindings": {
+      "shift-l": ["workspace::SendKeystrokes", "t ( l l l t ) g f l l g d"]
+    }
+  },
+  {
+    "context": "VimControl && !menu",
+    "bindings": {
+      "g enter": "editor::OpenExcerpts"
+    }
+  },
+  {
+    "context": "Workspace",
+    "bindings": {
+      "cmd-shift-s": null
+    }
+  },
+  {
+    "context": "vim_mode == visual",
+    "bindings": {
+      "s": null
+    }
+  },
+  {
+    "context": "vim_mode == helix_select",
+    "bindings": {
+      "s": null
+    }
+  },
+  {
+    "context": "((vim_mode == normal || vim_mode == helix_normal) && !menu)",
+    "bindings": {
+      "s": null
+    }
+  },
+  {
+    "context": "((vim_mode == normal || vim_mode == helix_normal) && !menu)",
+    "bindings": {
+      "shift-s": null
+    }
+  },
+  {
+    "context": "vim_mode == visual",
+    "bindings": {
+      "shift-s": null
+    }
+  },
+  {
+    "bindings": {
+      "cmd-°": "project_panel::CollapseAllEntries"
+    }
+  },
+  {
+    "context": "((vim_mode == helix_normal || vim_mode == normal) && !menu)",
+    "bindings": {
+      "space e": "editor::ToggleCodeActions"
+    }
+  },
+  {
+    "context": "((vim_mode == helix_normal || vim_mode == normal) && !menu)",
+    "bindings": {
+      "space a": "git::Blame"
+    }
+  },
+  {
+    "bindings": {
+      "cmd-0": "editor::RestartLanguageServer"
+    }
+  },
+  {
+    "context": "((VimControl && !menu) || (!Editor && !Terminal))",
+    "bindings": {
+      "cmd-shift-w": "pane::CloseAllItems"
+    }
+  },
+  {
+    "bindings": {
+      "cmd-shift-c": "workspace::CopyRelativePath"
+    }
+  }
+]

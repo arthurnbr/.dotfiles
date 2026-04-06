@@ -1,0 +1,53 @@
+alias py="python3"
+alias jb="jobs"
+
+alias clr="clear"
+alias cls="clear"
+
+alias ls='eza --icons'
+alias ll='eza --icons -l'
+alias lla='eza --icons -la'
+alias la='eza --icons -a'
+alias l='eza --icons'
+alias llr='eza --icons -l --tree --level=2'
+alias cat='bat --paging=never'
+
+alias ism="idea . & sm"
+
+"$"(){
+    if [ "$(uname -s)" = Darwin ]; then
+        open $@
+    else
+        xdg-open $@
+    fi
+}
+
+"sm"(){
+    if [ "$(uname -s)" = Darwin ]; then
+        open -a  /Applications/Sublime\ Merge.app $@
+    else
+        smerge $@ & disown
+    fi
+}
+
+"killp"(){
+    lsof -t -i:$@ | xargs kill
+}
+
+unalias rds
+"rds"(){
+  if [ "$#" -eq 0 ]; then
+    rails db:seed
+  elif [ "$#" -eq 1 ]; then
+    rails db:seed:"$1"
+  else
+    echo "Usage: rds or rds foo"
+    return 1
+  fi
+}
+alias rdsd="rails db:schema:dump"
+
+alias fm="foreman start"
+alias fmo="OPEN=true foreman start"
+
+alias calude="claude --dangerously-skip-permissions"
