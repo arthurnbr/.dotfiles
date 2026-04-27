@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+if [ "$EUID" -eq 0 ]; then
+  echo "ERROR: do not run this script as root. Run it as your normal user; sudo will be invoked only for pacman." >&2
+  exit 1
+fi
+
 DOTFILES_DIR="$(cd "$(dirname "$0")" && pwd)"
 PACKAGES=(zsh tmux ghostty zed git claude)
 
