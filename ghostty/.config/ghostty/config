@@ -39,11 +39,11 @@ background-blur = true
 keybind = super+t=unbind
 keybind = super+n=unbind
 
-# Cmd+F / Cmd+P sends Alt+f (tmux fuzzy search windows)
+# Cmd+F / Cmd+P → fuzzy tmux window picker (M-f)
 keybind = super+f=text:\x1bf
 keybind = super+p=text:\x1bf
 
-# Ctrl+Tab / Ctrl+Shift+Tab → tmux next/prev window (M-n / M-p)
+# Ctrl+Tab / Ctrl+Shift+Tab → next / prev tmux window (M-n / M-p)
 keybind = ctrl+tab=text:\x1bn
 keybind = ctrl+shift+tab=text:\x1bp
 

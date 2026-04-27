@@ -73,9 +73,9 @@ done
 # 6. Set ghostty as default terminal (xdg-terminal-exec)
 # ──────────────────────────────────────────
 mkdir -p "$HOME/.config"
-if ! grep -qx "ghostty.desktop" "$HOME/.config/xdg-terminals.list" 2>/dev/null; then
+if ! grep -qx "com.mitchellh.ghostty.desktop" "$HOME/.config/xdg-terminals.list" 2>/dev/null; then
   echo "==> Setting ghostty as default terminal..."
-  echo "ghostty.desktop" > "$HOME/.config/xdg-terminals.list"
+  echo "com.mitchellh.ghostty.desktop" > "$HOME/.config/xdg-terminals.list"
 fi
 
 # ──────────────────────────────────────────
