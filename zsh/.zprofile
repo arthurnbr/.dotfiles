@@ -1,5 +1,9 @@
+# Homebrew (macOS)
+if [ -x /opt/homebrew/bin/brew ]; then
+  eval "$(/opt/homebrew/bin/brew shellenv zsh)"
+fi
 
-eval "$(/opt/homebrew/bin/brew shellenv zsh)"
-
-# Added by `rbenv init` on Tue Feb  3 00:45:35 CET 2026
-eval "$(rbenv init - --no-rehash zsh)"
+# rbenv
+if command -v rbenv &>/dev/null; then
+  eval "$(rbenv init - --no-rehash zsh)"
+fi

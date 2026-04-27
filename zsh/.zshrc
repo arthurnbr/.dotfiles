@@ -8,14 +8,13 @@ source $HOME/.zshapps
 
 # All following lines mush be arranged
 
+# postgresql (macOS Homebrew)
+[ -d /opt/homebrew/opt/postgresql@18/bin ] && export PATH="/opt/homebrew/opt/postgresql@18/bin:$PATH"
 
-# bun completions
-[ -s "/Users/arthur/.bun/_bun" ] && source "/Users/arthur/.bun/_bun"
-export PATH="/opt/homebrew/opt/postgresql@18/bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
 
 # Default editor
 export EDITOR="zed --wait"
 
 # opencode
-export PATH=/Users/arthur/.opencode/bin:$PATH
+[ -d "$HOME/.opencode/bin" ] && export PATH="$HOME/.opencode/bin:$PATH"
