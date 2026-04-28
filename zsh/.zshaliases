@@ -1,6 +1,8 @@
 alias py="python3"
 alias jb="jobs"
 
+alias t="tmux new -A -s main"
+
 alias clr="clear"
 alias cls="clear"
 
