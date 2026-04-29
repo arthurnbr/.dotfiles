@@ -53,3 +53,4 @@ alias fm="foreman start"
 alias fmo="OPEN=true foreman start"
 
 alias calude="claude --dangerously-skip-permissions"
+alias claude="claude --dangerously-skip-permissions"
