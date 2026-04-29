@@ -32,6 +32,7 @@ PACMAN_PKGS=(
   lazydocker
   starship
   waybar
+  keyd
 )
 
 echo "==> Installing pacman packages..."
@@ -81,7 +82,15 @@ if ! grep -qx "com.mitchellh.ghostty.desktop" "$HOME/.config/xdg-terminals.list"
 fi
 
 # ──────────────────────────────────────────
-# 7. Set zsh as default shell if needed
+# 7. Deploy keyd config (Alt+HJKL → arrows) and enable daemon
+# ──────────────────────────────────────────
+echo "==> Deploying keyd config to /etc/keyd/default.conf..."
+sudo install -Dm644 "$DOTFILES_DIR/keyd/default.conf" /etc/keyd/default.conf
+sudo systemctl enable --now keyd
+sudo keyd reload 2>/dev/null || true
+
+# ──────────────────────────────────────────
+# 8. Set zsh as default shell if needed
 # ──────────────────────────────────────────
 if [ "$SHELL" != "$(command -v zsh)" ]; then
   echo "==> Setting zsh as default shell (you'll be prompted for password)..."

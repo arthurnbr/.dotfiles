@@ -16,6 +16,7 @@ Personal dotfiles managed with [GNU Stow](https://www.gnu.org/software/stow/).
 | `karabiner` | Karabiner-Elements key remappings | macOS |
 | `hypr` | Hyprland personal configs (bindings, monitors, input, etc.) | Linux (Omarchy) |
 | `waybar` | Waybar config + style | Linux (Omarchy) |
+| `keyd` | System-wide key remapping (Alt+HJKL → arrows). Not stowed — `setup-arch.sh` deploys `keyd/default.conf` to `/etc/keyd/` and enables the daemon. | Linux |
 
 ## New machine setup
 
