@@ -7,7 +7,7 @@ if [ "$EUID" -eq 0 ]; then
 fi
 
 DOTFILES_DIR="$(cd "$(dirname "$0")" && pwd)"
-PACKAGES=(zsh tmux ghostty zed git claude)
+PACKAGES=(zsh tmux ghostty zed git claude hypr waybar starship)
 
 echo "==> Dotfiles setup (Arch Linux) from $DOTFILES_DIR"
 
@@ -30,6 +30,8 @@ PACMAN_PKGS=(
   ghostty
   btop
   lazydocker
+  starship
+  waybar
 )
 
 echo "==> Installing pacman packages..."

@@ -14,3 +14,6 @@ karabiner/.config/karabiner/assets/
 # Zsh generated files
 zsh/.zcompdump*
 zsh/.zsh_history
+
+# Waybar runtime backups
+waybar/.config/waybar/*.bak.*
