@@ -33,6 +33,9 @@ PACMAN_PKGS=(
   starship
   waybar
   keyd
+  jq
+  inotify-tools
+  pipewire
 )
 
 echo "==> Installing pacman packages..."
@@ -73,7 +76,34 @@ for pkg in "${PACKAGES[@]}"; do
 done
 
 # ──────────────────────────────────────────
-# 6. Set ghostty as default terminal (xdg-terminal-exec)
+# 6. agent-island (Claude Code session overlay for Hyprland + Waybar)
+#    Clones the repo to ~/Documents/agent-island and runs its installer
+#    (idempotent merge into ~/.claude/settings.json).
+# ──────────────────────────────────────────
+AGENT_ISLAND_DIR="$HOME/Documents/agent-island"
+if [ ! -d "$AGENT_ISLAND_DIR/.git" ]; then
+  echo "==> Cloning agent-island..."
+  mkdir -p "$(dirname "$AGENT_ISLAND_DIR")"
+  git clone https://github.com/arthurnbr/agent-island.git "$AGENT_ISLAND_DIR"
+else
+  echo "==> Updating agent-island..."
+  git -C "$AGENT_ISLAND_DIR" pull --ff-only || true
+fi
+# Walker is in the AUR — try yay/paru, otherwise warn.
+if ! command -v walker >/dev/null 2>&1; then
+  if command -v yay >/dev/null 2>&1; then
+    yay -S --needed --noconfirm walker-bin || yay -S --needed --noconfirm walker || true
+  elif command -v paru >/dev/null 2>&1; then
+    paru -S --needed --noconfirm walker-bin || paru -S --needed --noconfirm walker || true
+  else
+    echo "  ! walker not installed and no AUR helper found." >&2
+    echo "    Install manually: https://github.com/abenz1267/walker" >&2
+  fi
+fi
+"$AGENT_ISLAND_DIR/install.sh" || true
+
+# ──────────────────────────────────────────
+# 7. Set ghostty as default terminal (xdg-terminal-exec)
 # ──────────────────────────────────────────
 mkdir -p "$HOME/.config"
 if ! grep -qx "com.mitchellh.ghostty.desktop" "$HOME/.config/xdg-terminals.list" 2>/dev/null; then
@@ -82,7 +112,7 @@ if ! grep -qx "com.mitchellh.ghostty.desktop" "$HOME/.config/xdg-terminals.list"
 fi
 
 # ──────────────────────────────────────────
-# 7. Deploy keyd config (Alt+HJKL → arrows) and enable daemon
+# 8. Deploy keyd config (Alt+HJKL → arrows) and enable daemon
 # ──────────────────────────────────────────
 echo "==> Deploying keyd config to /etc/keyd/default.conf..."
 sudo install -Dm644 "$DOTFILES_DIR/keyd/default.conf" /etc/keyd/default.conf
@@ -90,7 +120,7 @@ sudo systemctl enable --now keyd
 sudo keyd reload 2>/dev/null || true
 
 # ──────────────────────────────────────────
-# 8. Set zsh as default shell if needed
+# 9. Set zsh as default shell if needed
 # ──────────────────────────────────────────
 if [ "$SHELL" != "$(command -v zsh)" ]; then
   echo "==> Setting zsh as default shell (you'll be prompted for password)..."
