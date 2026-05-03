@@ -7,7 +7,7 @@ if [ "$EUID" -eq 0 ]; then
 fi
 
 DOTFILES_DIR="$(cd "$(dirname "$0")" && pwd)"
-PACKAGES=(zsh tmux ghostty zed git claude hypr waybar starship)
+PACKAGES=(zsh tmux ghostty zed git claude hypr waybar starship nvim)
 
 echo "==> Dotfiles setup (Arch Linux) from $DOTFILES_DIR"
 
@@ -36,6 +36,11 @@ PACMAN_PKGS=(
   jq
   inotify-tools
   pipewire
+  neovim
+  ripgrep
+  fd
+  lazygit
+  tree-sitter-cli
 )
 
 echo "==> Installing pacman packages..."

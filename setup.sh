@@ -2,7 +2,7 @@
 set -euo pipefail
 
 DOTFILES_DIR="$(cd "$(dirname "$0")" && pwd)"
-PACKAGES=(zsh tmux ghostty zed git karabiner claude starship)
+PACKAGES=(zsh tmux ghostty zed git karabiner claude starship nvim)
 
 echo "==> Dotfiles setup from $DOTFILES_DIR"
 
@@ -19,7 +19,7 @@ fi
 # 2. Install stow + common tools
 # ──────────────────────────────────────────
 echo "==> Installing packages..."
-brew install stow eza bat fzf zoxide fnm rbenv zsh-syntax-highlighting zsh-autosuggestions starship
+brew install stow eza bat fzf zoxide fnm rbenv zsh-syntax-highlighting zsh-autosuggestions starship neovim ripgrep fd lazygit tree-sitter
 
 # ──────────────────────────────────────────
 # 3. Install Oh My Zsh if missing
