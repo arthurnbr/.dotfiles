@@ -1,0 +1,52 @@
+#!/usr/bin/env python3
+import argparse
+import http.server
+import os
+import socket
+import sys
+
+
+def get_local_ip():
+    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+        s.connect(("8.8.8.8", 80))
+        return s.getsockname()[0]
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Quick local file sharing via HTTP")
+    parser.add_argument("path", nargs="?", default=".", help="file or directory to share (default: current dir)")
+    parser.add_argument("-p", "--port", type=int, default=8000)
+    args = parser.parse_args()
+
+    target = os.path.abspath(args.path)
+
+    if os.path.isfile(target):
+        directory = os.path.dirname(target)
+        filename = os.path.basename(target)
+    else:
+        directory = target
+        filename = None
+
+    if not os.path.exists(target):
+        print(f"error: {target} does not exist", file=sys.stderr)
+        sys.exit(1)
+
+    os.chdir(directory)
+    ip = get_local_ip()
+    path_suffix = f"/{filename}" if filename else ""
+
+    print(f"Sharing: {target}")
+    print(f"Local:   http://localhost:{args.port}{path_suffix}")
+    print(f"Network: http://{ip}:{args.port}{path_suffix}")
+    print()
+
+    handler = http.server.SimpleHTTPRequestHandler
+    with http.server.HTTPServer(("0.0.0.0", args.port), handler) as server:
+        try:
+            server.serve_forever()
+        except KeyboardInterrupt:
+            print("\nStopped.")
+
+
+if __name__ == "__main__":
+    main()
