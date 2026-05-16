@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 import argparse
+import fcntl
 import http.server
 import os
 import socket
+import struct
 import sys
 
 
@@ -10,6 +12,16 @@ def get_local_ip():
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
         s.connect(("8.8.8.8", 80))
         return s.getsockname()[0]
+
+
+def get_tailscale_ip():
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+            return socket.inet_ntoa(
+                fcntl.ioctl(s.fileno(), 0x8915, struct.pack("256s", b"tailscale0"))[20:24]
+            )
+    except OSError:
+        return None
 
 
 def main():
@@ -33,11 +45,14 @@ def main():
 
     os.chdir(directory)
     ip = get_local_ip()
+    ts_ip = get_tailscale_ip()
     path_suffix = f"/{filename}" if filename else ""
 
-    print(f"Sharing: {target}")
-    print(f"Local:   http://localhost:{args.port}{path_suffix}")
-    print(f"Network: http://{ip}:{args.port}{path_suffix}")
+    print(f"Sharing:   {target}")
+    print(f"Local:     http://localhost:{args.port}{path_suffix}")
+    print(f"Network:   http://{ip}:{args.port}{path_suffix}")
+    if ts_ip:
+        print(f"Tailscale: http://{ts_ip}:{args.port}{path_suffix}")
     print()
 
     handler = http.server.SimpleHTTPRequestHandler
