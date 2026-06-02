@@ -18,3 +18,7 @@ export EDITOR="zed --wait"
 
 # opencode
 [ -d "$HOME/.opencode/bin" ] && export PATH="$HOME/.opencode/bin:$PATH"
+eval "$(direnv hook zsh)"
+
+# bun completions
+[ -s "/home/arthur/.bun/_bun" ] && source "/home/arthur/.bun/_bun"

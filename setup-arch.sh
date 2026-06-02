@@ -7,7 +7,7 @@ if [ "$EUID" -eq 0 ]; then
 fi
 
 DOTFILES_DIR="$(cd "$(dirname "$0")" && pwd)"
-PACKAGES=(zsh tmux ghostty zed git claude hypr waybar starship nvim bin)
+PACKAGES=(zsh tmux ghostty zed git claude hypr waybar starship nvim bin herdr)
 
 echo "==> Dotfiles setup (Arch Linux) from $DOTFILES_DIR"
 

@@ -1,0 +1,8 @@
+onboarding = false
+
+[keys]
+# Aligné sur le préfixe tmux (C-a) pour une mémoire musculaire partagée.
+prefix = "ctrl+a"
+
+[experimental]
+pane_history = false

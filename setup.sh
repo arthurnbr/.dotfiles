@@ -2,7 +2,7 @@
 set -euo pipefail
 
 DOTFILES_DIR="$(cd "$(dirname "$0")" && pwd)"
-PACKAGES=(zsh tmux ghostty zed git karabiner claude starship nvim bin)
+PACKAGES=(zsh tmux ghostty zed git karabiner claude starship nvim bin herdr)
 
 echo "==> Dotfiles setup from $DOTFILES_DIR"
 
