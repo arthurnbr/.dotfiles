@@ -57,4 +57,12 @@ herdr pane close <pane_id>
 herdr pane run <pane_id> "<command>"
 ```
 
-**Pour lancer des serveurs ou processus longs** : splitter un pane, le renommer, et y envoyer la commande — ne pas bloquer le pane agent.
+**Tabs** (préféré aux panes pour les processus longs) :
+
+```bash
+herdr tab create [--cwd PATH] [--label TEXT] [--no-focus]
+herdr tab list
+herdr tab close <tab_id>
+```
+
+**Pour lancer des serveurs ou processus longs** : créer une **tab** (pas un pane), la nommer, et y envoyer la commande via `herdr pane send-text <root_pane_id>` — ne pas bloquer le pane agent.
