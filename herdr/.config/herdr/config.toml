@@ -6,3 +6,6 @@ prefix = "ctrl+a"
 
 [experimental]
 pane_history = false
+
+[ui]
+agent_panel_scope = "current"

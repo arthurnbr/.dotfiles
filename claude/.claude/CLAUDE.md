@@ -30,3 +30,31 @@ tmux display-message -p '#W'
 # Only rename if the name is a default one (zsh, bash, claude, etc.)
 tmux rename-window "short-task-name"
 ```
+
+## Herdr (terminal multiplexer)
+
+Arthur utilise **herdr** (`~/.local/bin/herdr`) comme terminal workspace manager (à la place de tmux natif). Commandes utiles :
+
+```bash
+# Lister les panes
+herdr pane list
+
+# Splitter un pane (créer un nouveau à côté)
+herdr pane split <pane_id> --direction right|down [--cwd PATH] [--focus]
+
+# Envoyer du texte / des touches dans un pane
+herdr pane send-text <pane_id> "<command>"
+herdr pane send-keys <pane_id> Enter
+
+# Lire le contenu d'un pane
+herdr pane read <pane_id> [--lines N]
+
+# Renommer / fermer un pane
+herdr pane rename <pane_id> "label"
+herdr pane close <pane_id>
+
+# Exécuter une commande dans un pane
+herdr pane run <pane_id> "<command>"
+```
+
+**Pour lancer des serveurs ou processus longs** : splitter un pane, le renommer, et y envoyer la commande — ne pas bloquer le pane agent.
