@@ -23,6 +23,7 @@ alias ism="idea . & sm"
         xdg-open $@
     fi
 }
+alias x='$'
 
 "sm"(){
     if [ "$(uname -s)" = Darwin ]; then
