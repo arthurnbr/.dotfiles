@@ -55,3 +55,15 @@ alias fmo="OPEN=true foreman start"
 
 alias calude="claude --dangerously-skip-permissions"
 alias claude="claude --dangerously-skip-permissions"
+
+"eduvia-env"(){
+  command ~/Documents/eduvia/tools/env/eduvia-env "$@"
+  local ret=$?
+  if [ -f "$HOME/.eduvia-env-cd" ]; then
+    local target
+    target=$(cat "$HOME/.eduvia-env-cd")
+    rm -f "$HOME/.eduvia-env-cd"
+    [ -d "$target" ] && cd "$target"
+  fi
+  return $ret
+}
