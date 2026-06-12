@@ -12,6 +12,8 @@ source $HOME/.zshapps
 [ -d /opt/homebrew/opt/postgresql@18/bin ] && export PATH="/opt/homebrew/opt/postgresql@18/bin:$PATH"
 
 export PATH="$HOME/.local/bin:$PATH"
+# Debian: /sbin not in user PATH by default
+[[ -d /sbin && ":$PATH:" != *":/sbin:"* ]] && export PATH="$PATH:/sbin:/usr/sbin"
 
 # Default editor
 export EDITOR="zed --wait"
