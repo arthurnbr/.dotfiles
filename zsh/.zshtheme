@@ -10,7 +10,11 @@ VIRTUAL_ENV_DISABLE_PROMPT=1
 setopt prompt_subst
 
 precmd() {
-  local dir_segment="%F{#1a1b26}%K{#7dcfff}%B  %(4~.…/%3~.%~) %b%f%k%F{#7dcfff}%f"
+  local host_segment=""
+  if [[ -n "$SSH_CONNECTION" ]]; then
+    host_segment="%F{#1a1b26}%K{#bb9af7}%B  %m %b%f%k%F{#bb9af7}%K{#7dcfff}%f"
+  fi
+  local dir_segment="${host_segment}%F{#1a1b26}%K{#7dcfff}%B  %(4~.…/%3~.%~) %b%f%k%F{#7dcfff}%f"
 
   local venv_segment=""
   if [[ -n "$VIRTUAL_ENV" ]]; then
