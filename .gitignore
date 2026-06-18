@@ -18,5 +18,5 @@ zsh/.zsh_history
 # Waybar runtime backups
 waybar/.config/waybar/*.bak.*
 
-# Dolibarr API key (machine-local secret, NEVER commit)
-claude/.claude/skills/dolibarr/credentials.env
+# Skill secrets never go in git — tokens live in Seafile (~/.secrets). *.env.example is OK.
+claude/.claude/skills/**/*.env

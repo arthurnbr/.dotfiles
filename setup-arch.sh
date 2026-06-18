@@ -81,6 +81,17 @@ for pkg in "${PACKAGES[@]}"; do
 done
 
 # ──────────────────────────────────────────
+# 5b. Skills (OMP) + alias des tokens Seafile
+#    Skills voyagent par git (stow → ~/.claude/skills) ; les tokens par Seafile.
+#    OMP lit les skills natifs sous ~/.omp/agent/skills → on le pointe sur ~/.claude/skills.
+#    Les skills lisent leur token via ~/.secrets (→ dossier synchronisé Seafile).
+# ──────────────────────────────────────────
+echo "==> Linking skills for OMP + Seafile secrets alias..."
+mkdir -p "$HOME/.omp/agent"
+ln -sfn "$HOME/.claude/skills" "$HOME/.omp/agent/skills"
+ln -sfn "$HOME/seafile-client/seafile/Ma bibliothèque/secrets" "$HOME/.secrets"
+
+# ──────────────────────────────────────────
 # 6. agent-island (Claude Code session overlay for Hyprland + Waybar)
 #    Clones the repo to ~/Documents/agent-island and runs its installer
 #    (idempotent merge into ~/.claude/settings.json).

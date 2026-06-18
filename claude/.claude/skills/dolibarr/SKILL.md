@@ -7,9 +7,9 @@ description: >-
   gestion des modules. À UTILISER dès que l'utilisateur parle de Dolibarr, "mon ERP",
   un devis, une facture, un client/fournisseur, la compta, le FEC, l'expert-comptable,
   ou veut lire/créer/modifier des données métier sur erp.nobrega.fr — même sans citer
-  "Dolibarr" explicitement. La clé API (DOLAPIKEY) est dans le fichier credentials.env
-  de ce skill : lis skill://dolibarr/credentials.env (ou le chemin local équivalent)
-  avant tout appel.
+  "Dolibarr" explicitement. La clé API (DOLAPIKEY) est dans `~/.secrets/dolibarr.env`
+  (synchronisé via Seafile) : lis ce fichier avant tout appel ; s'il est absent, voir
+  la section Connexion (demander à l'utilisateur de le mettre en place).
 ---
 
 # Dolibarr ERP — NS. CAPITAL (erp.nobrega.fr)
@@ -20,8 +20,13 @@ Pilotage de l'ERP par l'**API REST Dolibarr** (Restler, swagger 2.0).
 
 - Base URL : `https://erp.nobrega.fr/api/index.php`
 - Auth : header HTTP **`DOLAPIKEY: <clé>`** (préféré) ou query `?DOLAPIKEY=<clé>`.
-- La clé est dans **`skill://dolibarr/credentials.env`** (variables `DOLIBARR_URL`, `DOLAPIKEY`).
-  Lis ce fichier d'abord ; ne JAMAIS recopier la clé en clair dans un message ou un commit.
+- **Token** : fichier **`~/.secrets/dolibarr.env`** (variables `DOLIBARR_URL`, `DOLAPIKEY`),
+  synchronisé entre machines via Seafile. Lis-le d'abord ; ne JAMAIS recopier la clé en clair
+  dans un message ou un commit. Format attendu : voir `skill://dolibarr/dolibarr.env.example`.
+- **Si `~/.secrets/dolibarr.env` est absent** (Seafile pas encore configuré/synchronisé sur
+  cette machine) : NE PAS deviner la clé. Demander à l'utilisateur de la mettre en place — soit
+  en configurant le client Seafile (la library des secrets se synchronise et crée `~/.secrets`),
+  soit en créant le fichier à la main avec `DOLIBARR_URL` + `DOLAPIKEY`.
 - Explorer / swagger : `GET /explorer/swagger.json?DOLAPIKEY=<clé>` (la liste complète des
   endpoints n'apparaît qu'authentifié).
 
@@ -42,7 +47,7 @@ tout `DELETE`, mise à jour de masse, ou changement de config (`/setup/...`, mod
 
 curl :
 ```bash
-KEY=$(grep -E '^DOLAPIKEY=' "$(dirname "$0")/credentials.env" | cut -d= -f2)
+KEY=$(grep -E '^DOLAPIKEY=' ~/.secrets/dolibarr.env | cut -d= -f2)
 curl -s -H "DOLAPIKEY: $KEY" "https://erp.nobrega.fr/api/index.php/status"
 # Lister 5 clients
 curl -s -H "DOLAPIKEY: $KEY" "https://erp.nobrega.fr/api/index.php/thirdparties?limit=5"
@@ -56,7 +61,7 @@ python :
 ```python
 import json, urllib.request
 B = "https://erp.nobrega.fr/api/index.php"
-K = open(__file__.rsplit("/",1)[0] + "/credentials.env").read()
+K = open(__import__("os").path.expanduser("~/.secrets/dolibarr.env")).read()
 K = [l.split("=",1)[1].strip() for l in K.splitlines() if l.startswith("DOLAPIKEY=")][0]
 def call(method, path, body=None):
     data = json.dumps(body).encode() if body is not None else None

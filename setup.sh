@@ -47,6 +47,17 @@ for pkg in "${PACKAGES[@]}"; do
   stow -v --target="$HOME" --restow "$pkg"
 done
 
+# ──────────────────────────────────────────
+# 6. Skills (OMP) + alias des tokens Seafile
+#    Skills voyagent par git (stow → ~/.claude/skills) ; les tokens par Seafile.
+#    OMP lit les skills natifs sous ~/.omp/agent/skills → on le pointe sur ~/.claude/skills.
+#    Les skills lisent leur token via ~/.secrets (→ dossier synchronisé Seafile).
+# ──────────────────────────────────────────
+echo "==> Linking skills for OMP + Seafile secrets alias..."
+mkdir -p "$HOME/.omp/agent"
+ln -sfn "$HOME/.claude/skills" "$HOME/.omp/agent/skills"
+ln -sfn "$HOME/seafile-client/seafile/Ma bibliothèque/secrets" "$HOME/.secrets"
+
 echo ""
 echo "==> Done! Restart your shell or run: source ~/.zshrc"
 echo "==> For tmux plugins, open tmux and press: prefix + I"
