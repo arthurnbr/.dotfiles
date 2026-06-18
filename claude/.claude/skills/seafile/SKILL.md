@@ -21,7 +21,10 @@ Deux façons d'agir, complémentaires :
 
 ## 1) Dossier synchronisé (fichiers)
 
-- Racine du drive : `~/seafile-client/seafile/Ma bibliothèque`
+- Bibliothèques (chacune = un dossier synchronisé sous `~/seafile-client/seafile/`) :
+  - **`Ma bibliothèque`** — divers, « le reste » (~35 GB). repo-id `d308adb4-8695-4f6b-a4a8-79245ee3c7a7`.
+  - **`Pro`** — tout ce qui concerne les entreprises d'Arthur. repo-id `5943e2bf-624e-440e-baef-f87e6aa7b6cb`.
+  - **`Arthur`** — documents partagés avec ses parents. repo-id `c396c49a-d29c-465d-8db5-a39203216356`.
 - Interne, NE PAS toucher : `~/seafile-client/seafile-data`, `~/.ccnet`.
 - Démon : service utilisateur `seafile.service` (`seaf-daemon`). Vérifier qu'il tourne :
   `systemctl --user is-active seafile.service` et `pgrep -a seaf-daemon`.
@@ -35,8 +38,9 @@ mkdir -p "$DRIVE/Documents/2026" && cp /chemin/source.pdf "$DRIVE/Documents/2026
 
 Avec les outils du harness : `read`/`write`/`find`/`search` directement sous `$DRIVE`.
 
-> Le nom de library peut varier ; si `Ma bibliothèque` n'existe pas, lister
-> `~/seafile-client/seafile/` et prendre la bonne.
+> Si une library n'est pas synchronisée localement (`~/seafile-client/seafile/<nom>` absent),
+> la mapper : `seaf-cli download -c ~/.ccnet -l <repo-id> -s "$SEAFILE_URL" -d ~/seafile-client/seafile -u <compte-seafile> -T "$SEAFILE_TOKEN"`.
+> Un `AGENTS.md` à la racine de `Ma bibliothèque` décrit l'usage de chaque library.
 
 **Sync** : écrire pose le fichier sur disque tout de suite ; l'upload serveur + propagation
 aux autres PC prennent quelques secondes. Si le démon est arrêté, les changements restent
@@ -76,10 +80,13 @@ UP=$(curl -s -H "$H" "$SEAFILE_URL/api2/repos/<repo-id>/upload-link/" | tr -d '"
 curl -s -H "$H" -F "file=@/chemin/local.pdf" -F "parent_dir=/Documents" "$UP"
 ```
 
-### Library connue
+### Bibliothèques (repo-id)
 
-- `Ma bibliothèque` → repo-id `d308adb4-8695-4f6b-a4a8-79245ee3c7a7` (rw). Vérifier via
-  `GET /api2/repos/` si besoin (les ids peuvent changer si la library est recréée).
+- `Ma bibliothèque` → `d308adb4-8695-4f6b-a4a8-79245ee3c7a7` — divers, « le reste »
+- `Pro` → `5943e2bf-624e-440e-baef-f87e6aa7b6cb` — entreprises
+- `Arthur` → `c396c49a-d29c-465d-8db5-a39203216356` — partagé avec les parents
+
+Vérifier via `GET /api2/repos/` si besoin (les ids changent si une library est recréée).
 
 ## Quand utiliser quoi
 
