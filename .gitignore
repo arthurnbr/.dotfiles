@@ -17,3 +17,6 @@ zsh/.zsh_history
 
 # Waybar runtime backups
 waybar/.config/waybar/*.bak.*
+
+# Dolibarr API key (machine-local secret, NEVER commit)
+claude/.claude/skills/dolibarr/credentials.env
