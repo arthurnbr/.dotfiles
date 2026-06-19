@@ -40,7 +40,7 @@ Avec les outils du harness : `read`/`write`/`find`/`search` directement sous `$D
 
 > Si une library n'est pas synchronisée localement (`~/seafile-client/seafile/<nom>` absent),
 > la mapper : `seaf-cli download -c ~/.ccnet -l <repo-id> -s "$SEAFILE_URL" -d ~/seafile-client/seafile -u <compte-seafile> -T "$SEAFILE_TOKEN"`.
-> Un `AGENTS.md` à la racine de `Ma bibliothèque` décrit l'usage de chaque library.
+> Chaque bibliothèque a, à sa racine, un `AGENTS.md` décrivant son usage et sa structure.
 
 **Sync** : écrire pose le fichier sur disque tout de suite ; l'upload serveur + propagation
 aux autres PC prennent quelques secondes. Si le démon est arrêté, les changements restent
