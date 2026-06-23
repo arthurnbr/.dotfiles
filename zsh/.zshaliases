@@ -72,13 +72,13 @@ alias wake-serv-2="wakeonlan 74:56:3c:37:95:15"
 
 "batt"(){
     local cap=$(cat /sys/class/power_supply/BAT1/capacity 2>/dev/null)
-    local status=$(cat /sys/class/power_supply/BAT1/status 2>/dev/null)
+    local bat_status=$(cat /sys/class/power_supply/BAT1/status 2>/dev/null)
     if [ -z "$cap" ]; then
         echo "No battery found"
         return 1
     fi
     local icon
-    if [ "$status" = "Charging" ] || [ "$status" = "Full" ]; then
+    if [ "$bat_status" = "Charging" ] || [ "$bat_status" = "Full" ]; then
         icon="⚡"
     elif [ "$cap" -ge 80 ]; then icon="█████"
     elif [ "$cap" -ge 60 ]; then icon="████░"
@@ -86,5 +86,5 @@ alias wake-serv-2="wakeonlan 74:56:3c:37:95:15"
     elif [ "$cap" -ge 20 ]; then icon="██░░░"
     else icon="█░░░░"
     fi
-    echo "$icon $cap% ($status)"
+    echo "$icon $cap% ($bat_status)"
 }
