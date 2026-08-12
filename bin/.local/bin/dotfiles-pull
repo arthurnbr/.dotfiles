@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd ~/.dotfiles
+git pull --ff-only --quiet 2>/dev/null || exit 0
+# Re-stow all packages after pull
+for pkg in zsh tmux git claude nvim bin herdr; do
+  [ -d "$pkg" ] && stow --target="$HOME" --restow "$pkg" 2>/dev/null
+done
