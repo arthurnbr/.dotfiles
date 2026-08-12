@@ -20,3 +20,17 @@ waybar/.config/waybar/*.bak.*
 
 # Skill secrets never go in git — tokens live in Seafile (~/.secrets). *.env.example is OK.
 claude/.claude/skills/**/*.env
+
+# herdr runtime (logs, session state, release notes) — config.toml stays tracked
+herdr/.config/herdr/*.log
+herdr/.config/herdr/session.json
+herdr/.config/herdr/release-notes.json
+
+# bin: only hand-written scripts belong here — exclude compiled binaries
+# (herdr ~13MB, omp ~157MB) and pip-installed fonttools entry-point wrappers.
+bin/.local/bin/herdr
+bin/.local/bin/omp
+bin/.local/bin/fonttools
+bin/.local/bin/ttx
+bin/.local/bin/pyftsubset
+bin/.local/bin/pyftmerge
