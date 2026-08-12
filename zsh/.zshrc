@@ -24,3 +24,7 @@ eval "$(direnv hook zsh)"
 
 # bun completions
 [ -s "/home/arthur/.bun/_bun" ] && source "/home/arthur/.bun/_bun"
+
+# rbenv
+export PATH="$HOME/.rbenv/bin:$PATH"
+eval "$(rbenv init - zsh)"
