@@ -66,7 +66,7 @@ ln -sfn "$HOME/.claude/skills" "$HOME/.omp/agent/skills"
 
 echo "==> Registering Dolibarr MCP server for OMP..."
 OMP_MCP="$HOME/.omp/agent/mcp.json"
-DOLIBARR_MCP='${HOME}/.claude/mcp-servers/dolibarr/server.mjs'
+DOLIBARR_MCP="$HOME/.claude/mcp-servers/dolibarr/server.mjs"   # resolved absolute (OMP does not reliably expand ${HOME} in args)
 if command -v jq >/dev/null 2>&1; then
   [ -f "$OMP_MCP" ] || echo '{"mcpServers":{}}' >"$OMP_MCP"
   tmp="$(mktemp)"

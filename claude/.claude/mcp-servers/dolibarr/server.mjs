@@ -13,7 +13,7 @@
 //
 // Deps: none. Node >= 20 (global fetch, AbortController, import.meta.dirname).
 
-import { readFileSync } from "node:fs";
+import { readFileSync, appendFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 
@@ -312,6 +312,19 @@ async function handle(msg) {
       if (isRequest) return fail(id, -32601, `Méthode inconnue: ${method}`);
   }
 }
+
+// startup breadcrumb: stderr is the MCP debug channel; the file lets us self-diagnose spawns
+let secretState = "ok";
+try {
+  config();
+} catch {
+  secretState = "absent";
+}
+const startupLine = `dolibarr-mcp start pid=${process.pid} node=${process.version} argv=${JSON.stringify(process.argv.slice(1))} cwd=${process.cwd()} secret=${secretState}`;
+process.stderr.write(startupLine + "\n");
+try {
+  appendFileSync(join(homedir(), ".omp", "logs", "dolibarr-mcp.log"), `${new Date().toISOString()} ${startupLine}\n`);
+} catch {}
 
 let buf = "";
 process.stdin.setEncoding("utf8");

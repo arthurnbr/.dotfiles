@@ -1,10 +1,10 @@
 {
-  "_comment": "Copy the 'dolibarr' entry into any MCP client's server map. OMP expands ${HOME}; clients that do not (Claude Desktop, Cursor, ...) need an absolute path, e.g. /home/arthur/.claude/mcp-servers/dolibarr/server.mjs. Uses 'node' (Node >= 20); 'bun' also works. The server loads its own secret from ~/.secrets/dolibarr.env — no token in this file.",
+  "_comment": "Copy the 'dolibarr' entry into any MCP client's server map. Use an ABSOLUTE path to server.mjs — MCP clients (OMP included) do not reliably expand ${HOME} in args. Adjust the home dir per machine (here /home/arthur). command 'node' (Node >= 20); 'bun' also works. The server loads its own secret from ~/.secrets/dolibarr.env — no token in this file.",
   "mcpServers": {
     "dolibarr": {
       "type": "stdio",
       "command": "node",
-      "args": ["${HOME}/.claude/mcp-servers/dolibarr/server.mjs"]
+      "args": ["/home/arthur/.claude/mcp-servers/dolibarr/server.mjs"]
     }
   }
 }
