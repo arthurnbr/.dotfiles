@@ -1,0 +1,10 @@
+{
+  "_comment": "Copy the 'vikunja' entry into any MCP client's server map. Use an ABSOLUTE path to server.mjs — MCP clients (OMP included) do not reliably expand ${HOME} in args. Adjust the home dir per machine (here /home/arthur). command 'node' (Node >= 20); 'bun' also works. The server loads its own secret from ~/.secrets/vikunja.env — no token in this file.",
+  "mcpServers": {
+    "vikunja": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["/home/arthur/.claude/mcp-servers/vikunja/server.mjs"]
+    }
+  }
+}

@@ -64,17 +64,19 @@ echo "==> Linking skills for OMP..."
 mkdir -p "$HOME/.omp/agent"
 ln -sfn "$HOME/.claude/skills" "$HOME/.omp/agent/skills"
 
-echo "==> Registering Dolibarr MCP server for OMP..."
+echo "==> Registering local MCP servers for OMP..."
 OMP_MCP="$HOME/.omp/agent/mcp.json"
-DOLIBARR_MCP="$HOME/.claude/mcp-servers/dolibarr/server.mjs"   # resolved absolute (OMP does not reliably expand ${HOME} in args)
 if command -v jq >/dev/null 2>&1; then
   [ -f "$OMP_MCP" ] || echo '{"mcpServers":{}}' >"$OMP_MCP"
-  tmp="$(mktemp)"
-  if jq --arg srv "$DOLIBARR_MCP" \
-       '.mcpServers.dolibarr = {type:"stdio", command:"node", args:[$srv]}' \
-       "$OMP_MCP" >"$tmp"; then mv "$tmp" "$OMP_MCP"; else rm -f "$tmp"; fi
+  for srv in dolibarr vikunja; do
+    script="$HOME/.claude/mcp-servers/$srv/server.mjs"   # resolved absolute (OMP does not reliably expand ${HOME} in args)
+    tmp="$(mktemp)"
+    if jq --arg name "$srv" --arg s "$script" \
+         '.mcpServers[$name] = {type:"stdio", command:"node", args:[$s]}' \
+         "$OMP_MCP" >"$tmp"; then mv "$tmp" "$OMP_MCP"; else rm -f "$tmp"; fi
+  done
 else
-  echo "   (jq absent — ajoute le serveur à la main, cf. ~/.claude/mcp-servers/dolibarr/mcp.example.json)"
+  echo "   (jq absent — ajoute les serveurs à la main, cf. ~/.claude/mcp-servers/*/mcp.example.json)"
 fi
 
 echo "==> Seafile secrets bootstrap..."
