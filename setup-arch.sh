@@ -107,17 +107,17 @@ if [ -n "${SEAFILE_TOKEN:-}" ] && [ -n "${SEAFILE_URL:-}" ]; then
   # seaf-cli lives in the AUR; install on demand (token present ⇒ drive wanted).
   if ! command -v seaf-cli >/dev/null 2>&1; then
     if command -v yay >/dev/null 2>&1; then
-      yay -S --needed --noconfirm seafile-cli || true
+      yay -S --needed --noconfirm seafile || true
     elif command -v paru >/dev/null 2>&1; then
-      paru -S --needed --noconfirm seafile-cli || true
+      paru -S --needed --noconfirm seafile || true
     else
-      echo "  ! seaf-cli missing and no AUR helper; install 'seafile-cli' manually." >&2
+      echo "  ! seaf-cli missing and no AUR helper; install 'seafile' (AUR) manually." >&2
     fi
   fi
   if command -v seaf-cli >/dev/null 2>&1; then
     mkdir -p "$SEAFILE_LIB_DIR"
     [ -d "$HOME/.ccnet" ] || seaf-cli init -d "$HOME/seafile-client" >/dev/null 2>&1 || true
-    systemctl --user enable --now seafile.service 2>/dev/null || seaf-cli start >/dev/null 2>&1 || true
+    sudo -n systemctl enable --now "seaf-cli@$USER.service" 2>/dev/null || seaf-cli start >/dev/null 2>&1 || true
     sleep 2
     _sf_hdr="Authorization: Token $SEAFILE_TOKEN"
     _sf_user="$(curl -fsS --max-time 20 -H "$_sf_hdr" "$SEAFILE_URL/api2/account/info/" 2>/dev/null | jq -r '.email // empty' 2>/dev/null || true)"
