@@ -59,6 +59,19 @@ echo "==> Linking skills for OMP..."
 mkdir -p "$HOME/.omp/agent"
 ln -sfn "$HOME/.claude/skills" "$HOME/.omp/agent/skills"
 
+echo "==> Registering Dolibarr MCP server for OMP..."
+OMP_MCP="$HOME/.omp/agent/mcp.json"
+DOLIBARR_MCP='${HOME}/.claude/mcp-servers/dolibarr/server.mjs'
+if command -v jq >/dev/null 2>&1; then
+  [ -f "$OMP_MCP" ] || echo '{"mcpServers":{}}' >"$OMP_MCP"
+  tmp="$(mktemp)"
+  if jq --arg srv "$DOLIBARR_MCP" \
+       '.mcpServers.dolibarr = {type:"stdio", command:"node", args:[$srv]}' \
+       "$OMP_MCP" >"$tmp"; then mv "$tmp" "$OMP_MCP"; else rm -f "$tmp"; fi
+else
+  echo "   (jq absent — ajoute le serveur à la main, cf. ~/.claude/mcp-servers/dolibarr/mcp.example.json)"
+fi
+
 echo "==> Seafile drive bootstrap..."
 SEAFILE_LIB_DIR="$HOME/seafile-client/seafile"
 SEAFILE_SECRETS_DIR="$SEAFILE_LIB_DIR/Ma bibliothèque/secrets"

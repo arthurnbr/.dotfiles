@@ -16,6 +16,23 @@ description: >-
 
 Pilotage de l'ERP par l'**API REST Dolibarr** (Restler, swagger 2.0).
 
+## Serveur MCP (outils typés) — à préférer quand disponible
+
+Un serveur **MCP** maison expose les actions courantes en outils typés :
+`dolibarr_get` (lecture universelle), `dolibarr_thirdparty_create`,
+`dolibarr_proposal_create`, `dolibarr_invoice_create`, `dolibarr_invoice_builddoc`,
+`dolibarr_fec_export`. Code zéro-dépendance (`node`/`bun`), synchronisé via dotfiles,
+réutilisable par tout client MCP (OMP, Cursor, Claude Desktop, …) :
+
+- Serveur : `~/.claude/mcp-servers/dolibarr/server.mjs`
+- Config à copier : `~/.claude/mcp-servers/dolibarr/mcp.example.json`
+- Le serveur charge lui-même `~/.secrets/dolibarr.env` (aucun secret dans la config client).
+- **Sécurité** : lecture + écritures métier normales uniquement. `DELETE`, `/setup`,
+  (dés)activation de modules **ne sont pas exposés** — ça reste manuel (UI) ou via l'API ci-dessous.
+
+Quand les outils `dolibarr_*` sont disponibles dans le client, les préférer aux appels
+curl/API bruts. Sinon, ou pour un endpoint non couvert, utiliser l'**API REST** ci-dessous.
+
 ## Connexion
 
 - Base URL : `https://erp.nobrega.fr/api/index.php`
