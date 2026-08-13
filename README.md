@@ -44,25 +44,32 @@ them into OMP's native skill root:
 OMP discovers skills **at startup** — restart OMP (or open a new session) after setup for
 newly added skills to appear.
 
-### Drive (Seafile) — the one manual step
+### Drive (Seafile)
 
-The skills read their API token from `~/.secrets/seafile.env` (never committed). Because
-that file is itself synced *inside* the drive, a fresh machine can't fetch it from the
-drive yet — you must drop it once, out-of-band:
+Two access modes (see the `seafile` skill + `claude/.claude/skills/seafile/libraries.md`):
+
+- **`secrets` library** — a small dedicated library holding every token/`.env` at its root.
+  Auto-synced on **every** machine and exposed at `~/.secrets` (symlink → its checkout). This
+  is where `~/.secrets/seafile.env` comes from.
+- **Content libraries** (`Ma bibliothèque`, `Pro`, `Arthur`, …) — synced **on demand** into
+  `~/Documents/<lib>`, only where you want them. When a lib isn't synced, the agent reads it
+  via the Seahub API (no full sync needed).
+
+**Fresh-machine bootstrap** (the one manual step — chicken-and-egg: the token lives *inside*
+the `secrets` lib, so it can't be fetched from the drive before the drive is reachable).
+Provide the token once via the environment, then re-run setup:
 
 ```bash
-mkdir -p ~/.secrets
-printf 'SEAFILE_URL=https://drive.nobrega.fr\nSEAFILE_TOKEN=<token>\n' > ~/.secrets/seafile.env
-# get <token> from another synced machine, a password manager, or:
+SEAFILE_URL=https://drive.nobrega.fr SEAFILE_TOKEN=<token> ./setup-arch.sh   # or ./setup.sh
+# get <token> from another machine (~/.secrets/seafile.env), a password manager, or:
 #   curl -d 'username=<you>&password=<pw>' https://drive.nobrega.fr/api2/auth-token/
 ```
 
-Then run `./setup-arch.sh` (or `./setup.sh`): with the token present it installs `seaf-cli`
-(AUR on Arch; manual on macOS), initializes the sync client, and pulls the personal
-libraries (`Ma bibliothèque`, `Pro`, `Arthur`). Encrypted libraries still need their
-per-library password. Everything else — API access, uploads, share links — works from the
-token alone, no sync client required. `~/.secrets` is only symlinked into the drive when it
-doesn't already exist and the target is present (no dangling links, no clobbering).
+`setup*.sh` then installs `seaf-cli` (AUR package `seafile` on Arch; manual on macOS),
+initializes the client, syncs **only** the `secrets` lib, and points `~/.secrets` at it
+(defensively — never clobbering a real `~/.secrets`, never a dangling link). Content
+libraries are never auto-synced; sync one with `seaf-cli download … -d ~/Documents` (see
+`libraries.md`).
 
 
 ## Stow a single package

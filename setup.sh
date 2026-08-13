@@ -48,12 +48,17 @@ for pkg in "${PACKAGES[@]}"; do
 done
 
 # ──────────────────────────────────────────
-# 6. Skills (OMP) + Seafile drive (sync client + token)
+# 6. Skills (OMP) + Seafile drive (secrets lib only; content on demand)
 #    Skills travel via git (stow → ~/.claude/skills), exposed to OMP's native
-#    provider through ~/.omp/agent/skills. Tokens never live in git: the Seafile
-#    API token sits in ~/.secrets/seafile.env. Given that token, seaf-cli (if
-#    installed) pulls the personal libraries; the API access works regardless.
-#    ONLY manual step on a fresh machine: drop ~/.secrets/seafile.env once.
+#    provider through ~/.omp/agent/skills.
+#    Secrets: a dedicated small `secrets` library holds every token/.env at its
+#    root. It is the ONLY library auto-synced (everywhere) and is exposed at
+#    ~/.secrets (symlink to its checkout). Content libraries (Ma bibliothèque,
+#    Pro, …) are synced on demand into ~/Documents/<lib> — see the seafile skill
+#    and claude/.claude/skills/seafile/libraries.md.
+#    Fresh-machine bootstrap (the token lives inside the secrets lib, so provide
+#    it once via the environment), then re-run — afterwards ~/.secrets resolves:
+#      SEAFILE_URL=https://drive.nobrega.fr SEAFILE_TOKEN=<token> ./setup.sh
 # ──────────────────────────────────────────
 echo "==> Linking skills for OMP..."
 mkdir -p "$HOME/.omp/agent"
@@ -72,15 +77,14 @@ else
   echo "   (jq absent — ajoute le serveur à la main, cf. ~/.claude/mcp-servers/dolibarr/mcp.example.json)"
 fi
 
-echo "==> Seafile drive bootstrap..."
-SEAFILE_LIB_DIR="$HOME/seafile-client/seafile"
-SEAFILE_SECRETS_DIR="$SEAFILE_LIB_DIR/Ma bibliothèque/secrets"
-SEAFILE_ENV="$HOME/.secrets/seafile.env"
-SEAFILE_LIBS=("Ma bibliothèque" "Pro" "Arthur")
+echo "==> Seafile secrets bootstrap..."
+SEAFILE_CLIENT_DIR="$HOME/seafile-client"
+SEAFILE_CHECKOUT_DIR="$SEAFILE_CLIENT_DIR/seafile"
+SEAFILE_SECRETS_DIR="$SEAFILE_CHECKOUT_DIR/secrets"   # local checkout of the `secrets` lib
 
-if [ -r "$SEAFILE_ENV" ]; then
+if [ -z "${SEAFILE_TOKEN:-}" ] && [ -r "$HOME/.secrets/seafile.env" ]; then
   # shellcheck disable=SC1090
-  set -a; . "$SEAFILE_ENV"; set +a
+  set -a; . "$HOME/.secrets/seafile.env"; set +a
 fi
 
 if [ -n "${SEAFILE_TOKEN:-}" ] && [ -n "${SEAFILE_URL:-}" ]; then
@@ -89,44 +93,37 @@ if [ -n "${SEAFILE_TOKEN:-}" ] && [ -n "${SEAFILE_URL:-}" ]; then
     echo "    brew install --cask seafile-client   # or the Seafile-cli AppImage" >&2
     echo "    (drive API access via the token works without it.)" >&2
   fi
-  if command -v seaf-cli >/dev/null 2>&1; then
-    mkdir -p "$SEAFILE_LIB_DIR"
-    [ -d "$HOME/.ccnet" ] || seaf-cli init -d "$HOME/seafile-client" >/dev/null 2>&1 || true
+  if command -v seaf-cli >/dev/null 2>&1 && [ ! -d "$SEAFILE_SECRETS_DIR" ]; then
+    mkdir -p "$SEAFILE_CHECKOUT_DIR"
+    [ -d "$HOME/.ccnet" ] || seaf-cli init -d "$SEAFILE_CLIENT_DIR" >/dev/null 2>&1 || true
     seaf-cli start >/dev/null 2>&1 || true
     sleep 2
     _sf_hdr="Authorization: Token $SEAFILE_TOKEN"
     _sf_user="$(curl -fsS --max-time 20 -H "$_sf_hdr" "$SEAFILE_URL/api2/account/info/" 2>/dev/null | jq -r '.email // empty' 2>/dev/null || true)"
-    _sf_repos="$(curl -fsS --max-time 20 -H "$_sf_hdr" "$SEAFILE_URL/api2/repos/" 2>/dev/null || true)"
-    if [ -n "$_sf_user" ] && [ -n "$_sf_repos" ]; then
-      for _sf_name in "${SEAFILE_LIBS[@]}"; do
-        if [ -d "$SEAFILE_LIB_DIR/$_sf_name" ]; then continue; fi
-        _sf_id="$(printf '%s' "$_sf_repos" | jq -r --arg n "$_sf_name" '[.[] | select(.name==$n)][0].id // empty' 2>/dev/null || true)"
-        if [ -n "$_sf_id" ]; then
-          echo "  - syncing library: $_sf_name"
-          seaf-cli download -l "$_sf_id" -s "$SEAFILE_URL" -d "$SEAFILE_LIB_DIR" \
-            -u "$_sf_user" -T "$SEAFILE_TOKEN" >/dev/null 2>&1 \
-            || echo "    (skipped $_sf_name — encrypted or already syncing)"
-        else
-          echo "    (library '$_sf_name' not found via API)"
-        fi
-      done
+    _sf_id="$(curl -fsS --max-time 20 -H "$_sf_hdr" "$SEAFILE_URL/api2/repos/" 2>/dev/null | jq -r '[.[]|select(.name=="secrets")][0].id // empty' 2>/dev/null || true)"
+    if [ -n "$_sf_user" ] && [ -n "$_sf_id" ]; then
+      echo "  - syncing secrets library"
+      seaf-cli download -l "$_sf_id" -s "$SEAFILE_URL" -d "$SEAFILE_CHECKOUT_DIR" -u "$_sf_user" -T "$SEAFILE_TOKEN" >/dev/null 2>&1 || true
+      for _ in $(seq 1 15); do if [ -d "$SEAFILE_SECRETS_DIR" ]; then break; fi; sleep 1; done
     else
-      echo "  ! Could not reach Seahub with the token; check $SEAFILE_ENV" >&2
+      echo "  ! Could not resolve the secrets lib via Seahub; check token/URL." >&2
     fi
   fi
 else
-  echo "  - No token in $SEAFILE_ENV — Seafile drive & token-based skills inactive."
-  echo "    Enable once (out-of-band):"
-  echo "      mkdir -p ~/.secrets"
-  echo "      printf 'SEAFILE_URL=https://drive.nobrega.fr\\nSEAFILE_TOKEN=<token>\\n' > ~/.secrets/seafile.env"
+  echo "  - No Seafile token — drive & token-based skills inactive."
+  echo "    Bootstrap once (out-of-band), then re-run:"
+  echo "      SEAFILE_URL=https://drive.nobrega.fr SEAFILE_TOKEN=<token> ./setup.sh"
   echo "      # <token>: curl -d 'username=<you>&password=<pw>' https://drive.nobrega.fr/api2/auth-token/"
-  echo "    then re-run ./setup.sh"
 fi
 
-# Secrets alias into the drive: only when nothing is there yet AND the target
-# exists (never clobber a real ~/.secrets, never create a dangling symlink).
-if [ ! -e "$HOME/.secrets" ] && [ -d "$SEAFILE_SECRETS_DIR" ]; then
-  ln -sfn "$SEAFILE_SECRETS_DIR" "$HOME/.secrets"
+# ~/.secrets → the synced secrets checkout (single source, propagated via drive).
+if [ -d "$SEAFILE_SECRETS_DIR" ]; then
+  if [ ! -e "$HOME/.secrets" ] || [ -L "$HOME/.secrets" ]; then
+    ln -sfn "$SEAFILE_SECRETS_DIR" "$HOME/.secrets"
+  else
+    echo "  ! ~/.secrets is a real dir; move its files into the 'secrets' lib, then:" >&2
+    echo "      rm -rf ~/.secrets && ln -sfn '$SEAFILE_SECRETS_DIR' ~/.secrets" >&2
+  fi
 fi
 
 echo ""
