@@ -1,5 +1,8 @@
 @import "../omarchy/current/theme/waybar.css";
 
+/* Accent du workspace actif — Tokyo Night blue. Fixe : ne suit pas le thème. */
+@define-color accent #7aa2f7;
+
 * {
   background-color: @background;
   color: @foreground;
@@ -31,16 +34,14 @@
   opacity: 0.5;
 }
 
-#workspaces button.active {
-  background-color: @foreground;
-  color: @background;
-  border-radius: 8px;
+#workspaces button.active label {
+  color: @accent;
+  font-weight: bold;
 }
 
-#workspaces button.urgent {
-  background-color: #bf616a;
-  color: @background;
-  border-radius: 8px;
+#workspaces button.urgent label {
+  color: #f7768e;
+  font-weight: bold;
 }
 
 #cpu,
