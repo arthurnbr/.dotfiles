@@ -23,13 +23,16 @@ Personal dotfiles managed with [GNU Stow](https://www.gnu.org/software/stow/).
 ```bash
 git clone <repo-url> ~/.dotfiles
 cd ~/.dotfiles
-chmod +x setup.sh setup-arch.sh
+chmod +x setup.sh setup-arch.sh setup-debian.sh
 
 # macOS
 ./setup.sh
 
 # Arch Linux / Omarchy
 ./setup-arch.sh
+
+# Debian (headless server, e.g. mail VPS)
+./setup-debian.sh
 ```
 
 ## Skills (OMP) & Seafile drive
