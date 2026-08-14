@@ -97,6 +97,21 @@ echo "==> Linking skills for OMP..."
 mkdir -p "$HOME/.omp/agent"
 ln -sfn "$HOME/.claude/skills" "$HOME/.omp/agent/skills"
 
+echo "==> Registering local MCP servers for OMP..."
+OMP_MCP="$HOME/.omp/agent/mcp.json"
+if command -v jq >/dev/null 2>&1; then
+  [ -f "$OMP_MCP" ] || echo '{"mcpServers":{}}' >"$OMP_MCP"
+  for srv in dolibarr vikunja; do
+    script="$HOME/.claude/mcp-servers/$srv/server.mjs"   # resolved absolute (OMP does not reliably expand ${HOME} in args)
+    tmp="$(mktemp)"
+    if jq --arg name "$srv" --arg s "$script" \
+         '.mcpServers[$name] = {type:"stdio", command:"node", args:[$s]}' \
+         "$OMP_MCP" >"$tmp"; then mv "$tmp" "$OMP_MCP"; else rm -f "$tmp"; fi
+  done
+else
+  echo "   (jq absent — ajoute les serveurs à la main, cf. ~/.claude/mcp-servers/*/mcp.example.json)"
+fi
+
 echo "==> Seafile secrets bootstrap..."
 SEAFILE_CLIENT_DIR="$HOME/seafile-client"
 SEAFILE_CHECKOUT_DIR="$SEAFILE_CLIENT_DIR/seafile"
