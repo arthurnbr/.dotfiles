@@ -5,7 +5,7 @@
   "spacing": 0,
   "height": 26,
   "modules-left": ["custom/omarchy", "hyprland/workspaces"],
-  "modules-center": ["clock", "custom/agent-island", "custom/update", "custom/screenrecording-indicator"],
+  "modules-center": ["clock", "custom/update", "custom/screenrecording-indicator"],
   "modules-right": [
     "group/tray-expander",
     "bluetooth",
@@ -50,16 +50,6 @@
     "format-alt": "{:L%d %B W%V %Y}",
     "tooltip": false,
     "on-click-right": "omarchy-launch-floating-terminal-with-presentation omarchy-tz-select"
-  },
-  "custom/agent-island": {
-    "exec": "/home/arthur/Documents/agent-island/bin/agent-island-waybar",
-    "return-type": "json",
-    "interval": "once",
-    "signal": 9,
-    "tooltip": true,
-    "format": "{}",
-    "escape": false,
-    "on-click": "/home/arthur/Documents/agent-island/bin/agent-island-popup"
   },
   "network": {
     "format-icons": ["󰤯", "󰤟", "󰤢", "󰤥", "󰤨"],

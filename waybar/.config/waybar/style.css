@@ -94,29 +94,3 @@ tooltip {
 #custom-screenrecording-indicator.active {
   color: #a55555;
 }
-
-#custom-agent-island {
-  margin: 0 8px;
-  padding: 0 6px;
-  border-radius: 8px;
-  font-size: 11px;
-  transition: background-color 200ms ease, color 200ms ease, opacity 200ms ease;
-}
-#custom-agent-island.empty {
-  opacity: 0;
-  margin: 0;
-  padding: 0;
-  min-width: 0;
-}
-#custom-agent-island.working {
-  color: #76a9fa;
-  background-color: rgba(118, 169, 250, 0.10);
-}
-#custom-agent-island.waiting {
-  color: #fabd5a;
-  background-color: rgba(250, 189, 90, 0.18);
-}
-#custom-agent-island.idle {
-  color: #78dc8c;
-  background-color: rgba(120, 220, 140, 0.10);
-}
