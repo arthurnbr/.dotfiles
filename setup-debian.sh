@@ -16,7 +16,7 @@ echo "==> Dotfiles setup (Debian) from $DOTFILES_DIR"
 # 1. Install apt packages
 #    CORE must succeed; EXTRAS are best-effort (name/availability varies by release).
 # ──────────────────────────────────────────
-CORE_PKGS=(stow zsh tmux git curl ca-certificates jq neovim)
+CORE_PKGS=(stow zsh tmux git curl ca-certificates unzip jq neovim)
 EXTRA_PKGS=(zsh-syntax-highlighting zsh-autosuggestions eza bat fzf zoxide ripgrep fd-find btop inotify-tools direnv rbenv)
 
 echo "==> Installing apt packages (core)..."
