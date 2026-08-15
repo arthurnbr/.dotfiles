@@ -169,6 +169,33 @@ if [ -d "$SEAFILE_SECRETS_DIR" ]; then
   fi
 fi
 
+# ── 2brain: mémoire persistante multi-agents (synchronisée partout, comme secrets) ──
+SEAFILE_2BRAIN_DIR="$SEAFILE_CHECKOUT_DIR/2brain"
+if [ -n "${SEAFILE_TOKEN:-}" ] && [ -n "${SEAFILE_URL:-}" ] && command -v seaf-cli >/dev/null 2>&1; then
+  if [ ! -d "$SEAFILE_2BRAIN_DIR" ]; then
+    echo "==> Syncing 2brain memory library..."
+    sudo -n systemctl enable --now "seaf-cli@$(id -un).service" 2>/dev/null || seaf-cli start >/dev/null 2>&1 || true
+    _b_hdr="Authorization: Token $SEAFILE_TOKEN"
+    _b_user="$(curl -fsS --max-time 20 -H "$_b_hdr" "$SEAFILE_URL/api2/account/info/" 2>/dev/null | jq -r '.email // empty' 2>/dev/null || true)"
+    _b_id="$(curl -fsS --max-time 20 -H "$_b_hdr" "$SEAFILE_URL/api2/repos/" 2>/dev/null | jq -r '[.[]|select(.name=="2brain")][0].id // empty' 2>/dev/null || true)"
+    if [ -n "$_b_user" ] && [ -n "$_b_id" ]; then
+      seaf-cli download -l "$_b_id" -s "$SEAFILE_URL" -d "$SEAFILE_CHECKOUT_DIR" -u "$_b_user" -T "$SEAFILE_TOKEN" >/dev/null 2>&1 || true
+      for _ in $(seq 1 15); do [ -d "$SEAFILE_2BRAIN_DIR" ] && break; sleep 1; done
+    else
+      echo "  ! Could not resolve the 2brain lib via Seahub; check token/URL." >&2
+    fi
+  fi
+fi
+# ~/2brain → the synced 2brain checkout (never clobber a real dir, never dangle).
+if [ -d "$SEAFILE_2BRAIN_DIR" ]; then
+  if [ ! -e "$HOME/2brain" ] || [ -L "$HOME/2brain" ]; then
+    ln -sfn "$SEAFILE_2BRAIN_DIR" "$HOME/2brain"
+  else
+    echo "  ! ~/2brain is a real dir; move its files into the '2brain' lib, then symlink it." >&2
+  fi
+fi
+mkdir -p "$HOME/2brain-scratch"   # local, jamais synchronisé (travail jetable des agents)
+
 # ──────────────────────────────────────────
 # 6. Set ghostty as default terminal (xdg-terminal-exec)
 # ──────────────────────────────────────────

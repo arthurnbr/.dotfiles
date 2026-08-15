@@ -15,6 +15,20 @@ Je travaille **de la même manière sur tous mes OS** : chaque machine clone le 
 - Après une modification, **commit et push dans le repo dotfiles** (`~/.dotfiles`), sans demander confirmation, pour que la config soit synchronisée sur mes autres machines. Ne jamais laisser un changement non commité dans ce repo.
 - Si tu ajoutes un nouveau fichier de config à gérer globalement (pas seulement `CLAUDE.md`), place-le dans `~/.dotfiles/<package>/<chemin-relatif-à-HOME>/` et, si c'est un nouveau package, ajoute-le à `PACKAGES` dans `setup.sh` et re-stow.
 
+## Mémoire persistante (2brain)
+
+J'ai une **mémoire persistante, synchronisée sur toutes mes machines** et partagée entre tous mes agents (Claude Code, Codex, OMP). Elle vit dans la library Seafile `2brain`, exposée à **`~/2brain`** (synchronisée comme `~/.secrets`, écriture propagée en secondes, sans commit).
+
+**Au démarrage de CHAQUE session, tu DOIS :**
+1. Lire **`~/2brain/START.md`** — c'est le contrat canonique (comment lire la mémoire et comment l'alimenter). Source unique de vérité ; ce bloc n'est qu'un pointeur.
+2. Charger `~/2brain/profile/facts.md` (toujours), puis la couche projet (`~/2brain/projects/<slug>/`) résolue par le dossier courant ou par le nom que je cite (cf. `projects/INDEX.md`).
+
+**Pendant/à la fin du travail**, alimente-la de toi-même quand un déclencheur se produit (décision, fait durable, jalon), et propose un récap avant de conclure — règles exactes dans `START.md`.
+
+**Rapports & fichiers temporaires** : écris-les dans `2brain` (utile à garder → `projects/<slug>/reports/`) ou dans `~/2brain-scratch/<slug>/` (jetable, non synchronisé) — **jamais en vrac dans un repo de code**.
+
+Si `~/2brain/START.md` est absent (machine pas encore amorcée), relancer `setup*.sh` (la lib se synchronise via le token déjà présent dans `secrets`).
+
 
 ## Tmux Window Naming
 

@@ -12,7 +12,7 @@ Personal dotfiles managed with [GNU Stow](https://www.gnu.org/software/stow/).
 | `zed` | Zed editor settings, keymaps, tasks | all |
 | `git` | Git config + global ignore | all |
 | `starship` | Starship prompt config | all |
-| `claude` | Global `CLAUDE.md` + OMP/Claude skills (`seafile`, `dolibarr`) | all |
+| `claude` | Global `CLAUDE.md` + Codex `AGENTS.md` + OMP/Claude skills (`seafile`, `dolibarr`, `vikunja`, `2brain`, …) + local MCP servers (`dolibarr`, `vikunja`) | all |
 | `karabiner` | Karabiner-Elements key remappings | macOS |
 | `hypr` | Hyprland personal configs (bindings, monitors, input, etc.) | Linux (Omarchy) |
 | `waybar` | Waybar config + style | Linux (Omarchy) |
@@ -73,6 +73,24 @@ initializes the client, syncs **only** the `secrets` lib, and points `~/.secrets
 (defensively — never clobbering a real `~/.secrets`, never a dangling link). Content
 libraries are never auto-synced; sync one with `seaf-cli download … -d ~/Documents` (see
 `libraries.md`).
+
+## 2brain — persistent multi-agent memory
+
+A cloud-synced memory shared across machines **and** agents (Claude Code, Codex, OMP; later
+online agents via MCP). Any agent reads it at session start and feeds it as it works, so it
+always knows Arthur's context (identity, projects, decisions, preferences) and has a place to
+drop reports/temp files instead of polluting code repos.
+
+- **Storage** — a dedicated Seafile library `2brain`, auto-synced on **every** machine like
+  `secrets`, exposed at **`~/2brain`** (symlink → its checkout). Writes propagate in seconds,
+  no commit. Throwaway work goes to `~/2brain-scratch/` (local, never synced).
+- **Canonical contract** — `~/2brain/START.md` is the single source of truth (how to read the
+  memory, how to feed it). Per-agent files are thin pointers: the `2brain` block in `CLAUDE.md`,
+  the same in Codex `AGENTS.md`, and the OMP `2brain` skill.
+- **Structure** — `profile/` (global, always loaded) + `projects/<slug>/`, each with
+  `facts` / `journal` / `reports`. `projects/INDEX.md` is the catalog + alias map.
+- **Bootstrap** — `setup*.sh` syncs the `2brain` lib (token already in `secrets`), lays down
+  `~/2brain` + `~/2brain-scratch`. Design spec: `docs/2026-08-14-2brain-memory-design.md`.
 
 
 ## Stow a single package
