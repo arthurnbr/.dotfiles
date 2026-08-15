@@ -1,97 +1,174 @@
-@import "../omarchy/current/theme/waybar.css";
+/* ============================================================
+   Waybar — Catppuccin Mocha replica
+   Inspired by github.com/anmol-fzr/waybar, adapted for
+   Omarchy / Hyprland on AMD. Fixed palette (does not follow
+   the Omarchy theme, by design).
+   ============================================================ */
 
-/* Accent du workspace actif — Tokyo Night blue. Fixe : ne suit pas le thème. */
-@define-color accent #7aa2f7;
+/* --- Catppuccin Mocha palette ---
+   base    #1e1e2e   crust   #11111b   mantle  #181825
+   surface0#313244   text    #cdd6f4   overlay0#6c7086
+   mauve   #cba6f7   blue    #89b4fa   green   #a6e3a1
+   peach   #fab387   yellow  #f9e2af   teal    #94e2d5
+   red     #f38ba8   maroon  #eba0ac
+*/
 
 * {
-  background-color: @background;
-  color: @foreground;
-
   border: none;
   border-radius: 0;
+  font-family: "JetBrainsMono Nerd Font";
+  font-weight: bold;
+  font-size: 14px;
   min-height: 0;
-  font-family: 'CaskaydiaMono Nerd Font';
-  font-size: 12px;
 }
 
-.modules-left {
-  margin-left: 8px;
-}
-
-.modules-right {
-  margin-right: 8px;
-}
-
-#workspaces button {
-  all: initial;
-  padding: 0 6px;
-  margin: 0 1.5px;
-  min-width: 9px;
-  color: @foreground;
-}
-
-#workspaces button.empty {
-  opacity: 0.5;
-}
-
-#workspaces button.active label {
-  color: @accent;
-  font-weight: bold;
-}
-
-#workspaces button.urgent label {
-  color: #f7768e;
-  font-weight: bold;
-}
-
-#cpu,
-#battery,
-#pulseaudio,
-#custom-omarchy,
-#custom-screenrecording-indicator,
-#custom-update {
-  min-width: 12px;
-  margin: 0 7.5px;
-}
-
-#tray {
-  margin-right: 16px;
-}
-
-#bluetooth {
-  margin-right: 17px;
-}
-
-#network {
-  margin-right: 13px;
-}
-
-#custom-expand-icon {
-  margin-right: 20px;
+window#waybar {
+  background: transparent;
+  color: #cdd6f4;
 }
 
 tooltip {
-  padding: 2px;
+  background: #1e1e2e;
+  border-radius: 10px;
+  border: 2px solid #11111b;
+}
+tooltip label {
+  color: #cdd6f4;
 }
 
-#custom-update {
-  font-size: 10px;
+/* ---------- shared island look ---------- */
+#clock,
+#workspaces,
+#window,
+#network,
+#bluetooth,
+#temperature,
+#memory,
+#pulseaudio,
+#battery {
+  background: #1e1e2e;
+  opacity: 0.92;
+  padding: 0 12px;
+  margin-top: 8px;
+  margin-bottom: 8px;
+  border: 1px solid #181825;
 }
 
+/* ================= LEFT ================= */
+
+/* clock */
 #clock {
-  margin-left: 8.75px;
+  color: #fab387;
+  border-radius: 10px;
+  margin-left: 10px;
 }
 
-.hidden {
+/* workspaces island */
+#workspaces {
+  border-radius: 10px;
+  margin-left: 8px;
+  padding: 0 4px;
+}
+#workspaces button {
+  all: initial;
+  font-family: "JetBrainsMono Nerd Font";
+  font-weight: bold;
+  color: #636777;
+  padding: 0 5px;
+  margin: 4px 2px;
+}
+#workspaces button:hover {
+  background: #11111b;
+  border-radius: 8px;
+}
+#workspaces button.active {
+  background: #313244;
+  border-radius: 8px;
+}
+#workspaces button.urgent {
+  color: #11111b;
+  background: #f38ba8;
+  border-radius: 8px;
+}
+#workspaces .workspace-label {
+  color: #6c7086;
+  margin-right: 3px;
+}
+#workspaces button.active .workspace-label {
+  color: #cba6f7;
+}
+
+/* omarchy indicators (sit next to workspaces) */
+#custom-update,
+#custom-screenrecording-indicator {
+  color: #f9e2af;
+  font-size: 11px;
+  margin-left: 8px;
+  min-width: 8px;
+}
+#custom-screenrecording-indicator.active {
+  color: #f38ba8;
+}
+
+/* ================= CENTER ================= */
+
+#window {
+  color: #cdd6f4;
+  border-radius: 10px;
+  margin: 8px 40px;
+}
+window#waybar.empty #window {
+  background: transparent;
+  border-color: transparent;
   opacity: 0;
 }
 
-#custom-screenrecording-indicator {
-  min-width: 12px;
-  margin-left: 8.75px;
-  font-size: 10px;
+/* ================= RIGHT ================= */
+
+/* group A: network | bluetooth */
+#network {
+  color: #f9e2af;
+  border-radius: 10px 0 0 10px;
+  border-right: 0;
+}
+#bluetooth {
+  color: #89b4fa;
+  border-radius: 0 10px 10px 0;
+  margin-right: 10px;
 }
 
-#custom-screenrecording-indicator.active {
-  color: #a55555;
+/* group B: temperature | memory */
+#temperature {
+  color: #94e2d5;
+  border-radius: 10px 0 0 10px;
+  border-right: 0;
+}
+#temperature.critical {
+  color: #f38ba8;
+}
+#memory {
+  color: #eba0ac;
+  border-radius: 0 10px 10px 0;
+  margin-right: 10px;
+}
+
+/* group C: pulseaudio | battery */
+#pulseaudio {
+  color: #89b4fa;
+  border-radius: 10px 0 0 10px;
+  border-right: 0;
+}
+#pulseaudio.muted {
+  color: #6c7086;
+}
+#battery {
+  color: #a6e3a1;
+  border-radius: 0 10px 10px 0;
+  margin-right: 10px;
+}
+#battery.warning {
+  color: #fab387;
+}
+#battery.critical {
+  color: #f38ba8;
 }
