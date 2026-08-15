@@ -88,12 +88,16 @@ changement de variable, demander à Arthur QUEL projet/app sur QUELLE machine**
 Quand tu produis un fichier destiné à Arthur, **donne les deux** : (1) le
 **chemin local** (utile s'il est sur l'hôte), (2) un **lien de téléchargement
 Seafile** (utile sinon). Arthur dira si l'un est superflu — proposer les deux
-par défaut. Un lien n'est possible que pour un fichier **dans une lib Seafile** :
-`~/2brain/…` en est une (repo `2brain`) → déposer les livrables là plutôt qu'en
-scratch (non partageable). Créer le lien :
+par défaut. Le lien est **public, téléchargeable sans connexion** (comportement
+voulu ; pas de mot de passe sauf demande). Un lien n'existe que pour un fichier
+**dans une lib Seafile** : `~/2brain/…` en est une (repo `2brain`). **Le scratch
+n'est jamais synchronisé** — pour partager un fichier en scratch (ou hors lib),
+**copier ce livrable précis dans `~/2brain/`** (généralement
+`projects/<slug>/reports/`), attendre la synchro, puis créer le lien. On ne
+synchronise pas tout le scratch. Création :
 `POST /api/v2.1/share-links/` avec `repo_id` + `path` (token
-`~/.secrets/seafile.env`) → `https://drive.nobrega.fr/f/<token>/`. Cf.
-`START.md` §5 et skill `seafile`.
+`~/.secrets/seafile.env`) → `https://drive.nobrega.fr/f/<token>/` (`?dl=1` = dl
+direct). Cf. `START.md` §5 et skill `seafile`.
 
 ## Structure
 

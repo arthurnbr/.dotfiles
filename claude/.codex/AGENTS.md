@@ -38,9 +38,11 @@ quel projet sur quelle machine avant d'agir — jamais autonome.** Détails :
 
 **Livrer un document** : quand tu transmets un fichier à Arthur, donne **le
 chemin local** (s'il est sur l'hôte) **et** un **lien de téléchargement Seafile**
-(sinon). Il dira si l'un est superflu. Lien possible seulement pour un fichier
-dans une lib Seafile — `~/2brain/…` en est une (y déposer les livrables).
-Détails : `START.md` §5.
+(sinon). Il dira si l'un est superflu. Le lien est **public, téléchargeable sans
+connexion** (voulu). Lien possible seulement pour un fichier dans une lib
+Seafile — `~/2brain/…` en est une ; le scratch n'est jamais synchronisé, donc
+pour partager un fichier, copie-le d'abord dans `~/2brain/` (le livrable précis,
+pas tout le scratch). Détails : `START.md` §5.
 
 Si `~/2brain/START.md` est absent (machine pas amorcée), relancer `setup*.sh`
 (la lib se synchronise via le token déjà présent dans `secrets`).
