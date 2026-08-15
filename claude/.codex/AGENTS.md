@@ -23,6 +23,12 @@ exactes dans `START.md`.
 `projects/<slug>/reports/`) ou `~/2brain-scratch/<slug>/` (jetable, non
 synchronisé) — **jamais en vrac dans un repo de code**.
 
+**Suivi des tâches — toujours via Vikunja** (serveur MCP `vikunja`) : tout
+travail suivi passe par Vikunja ; lis l'état, `To-Do→Doing→done`, commente +
+logue au journal 2brain. « Tâche N d'un projet » = l'`index` (#N affiché), pas
+l'`id` global — projet résolu via `~/2brain/projects/INDEX.md`. Détails +
+cas 2fleet : `START.md` §3.
+
 Si `~/2brain/START.md` est absent (machine pas amorcée), relancer `setup*.sh`
 (la lib se synchronise via le token déjà présent dans `secrets`).
 

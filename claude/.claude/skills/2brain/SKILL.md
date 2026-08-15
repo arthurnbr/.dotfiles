@@ -50,6 +50,24 @@ session** avant de conclure.
   `~/2brain-scratch/<slug>/` — **local, non synchronisé, purgeable**. Les
   rapports/temporaires vont ici **plutôt que dans les repos de code**.
 
+## Suivi des tâches — toujours via Vikunja
+
+Méthodo de travail d'Arthur : **tout travail suivi passe par Vikunja** (serveur
+MCP `vikunja`, `todo.nobrega.fr`). Réflexe : lire l'état des tâches du projet,
+passer la tâche `To-Do → Doing` (bucket kanban) au démarrage, `done` à la fin,
+commenter l'avancement (`vikunja_task_comment_add`) **et** loguer au journal
+2brain.
+
+**« Fais la tâche N de ce projet » :** N = l'`index` de la tâche (le #N affiché
+dans l'UI), **PAS son `id` global**. Résolution : slug → projet Vikunja (colonne
+« Projet Vikunja » de `projects/INDEX.md`) → tâche où `index == N` → agir sur son
+`id`. Ex. « tâche 8 de 2fleet » → projet 26 → `index=8` → `id=69`.
+
+**2fleet** (projet 26) est un orchestrateur multi-agents autonome qui gère
+lui-même ses buckets (`Draft→…→Done`) et ses bots (`bot-fleet-*`) ; ne pas
+piloter ses buckets à la main, mais on peut y créer/assigner des tâches aux bots
+(`vikunja_task_assign`). Détails : `START.md` §3 et `projects/2fleet/facts.md`.
+
 ## Structure
 
 ```

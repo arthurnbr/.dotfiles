@@ -36,6 +36,16 @@ instead of polluting code repos.
 7. **Writing = disciplined hybrid (C).** Autonomous on triggers
    (decision / durable fact / milestone), **plus** an end-of-session recap the
    agent proposes before concluding. Quality filter, no drift.
+8. **Task tracking = always via Vikunja.** Part of the methodology, documented
+   in `START.md` §3. Every tracked piece of work is a Vikunja task; the agent
+   reads state, moves it `To-Do → Doing → Done` (kanban buckets), and logs
+   progress (task comment + 2brain journal). Project slugs map to Vikunja
+   project ids in `INDEX.md` (`ns-capital`→16, `2fleet`→26). Key gotcha:
+   **"task N" = the task `index` (the #N shown in the UI), not the global
+   `id`** — resolve slug → project → task where `index==N` → act on its `id`.
+   `2fleet` (26) is Arthur's autonomous multi-agent orchestrator that manages
+   its own buckets/bots (`bot-fleet-*`); agents don't drive its buckets by hand
+   but may create/assign tasks to its bots.
 
 ## Structure
 
