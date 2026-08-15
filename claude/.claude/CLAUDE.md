@@ -29,6 +29,8 @@ J'ai une **mémoire persistante, synchronisée sur toutes mes machines** et part
 
 **Suivi des tâches — toujours via Vikunja** (serveur MCP `vikunja`, `todo.nobrega.fr`) : tout travail suivi passe par Vikunja ; lis l'état, passe `To-Do→Doing` puis `done`, commente + logue au journal 2brain. « Tâche N d'un projet » = l'`index` (le #N affiché), pas l'`id` global — résous le projet via `~/2brain/projects/INDEX.md`. Détails et cas 2fleet : `START.md` §3.
 
+**Déploiements & infra — toujours via Coolify** (`cool.nobrega.fr`, secret `~/.secrets/coolify.env`) : utilise au **maximum les features natives de Coolify**, pas de déploiement manuel/script custom quand Coolify sait le faire. Lire l'état : libre. **Déployer/redémarrer/arrêter = demande TOUJOURS à Arthur quel projet sur quelle machine avant d'agir — jamais autonome.** Détails : `START.md` §4.
+
 Si `~/2brain/START.md` est absent (machine pas encore amorcée), relancer `setup*.sh` (la lib se synchronise via le token déjà présent dans `secrets`).
 
 

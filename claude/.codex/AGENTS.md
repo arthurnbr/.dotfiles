@@ -29,6 +29,13 @@ logue au journal 2brain. « Tâche N d'un projet » = l'`index` (#N affiché), p
 l'`id` global — projet résolu via `~/2brain/projects/INDEX.md`. Détails +
 cas 2fleet : `START.md` §3.
 
+**Déploiements & infra — toujours via Coolify** (`cool.nobrega.fr`, secret
+`~/.secrets/coolify.env`) : utilise au **maximum les features natives de
+Coolify** ; pas de déploiement manuel/script custom quand Coolify sait le faire.
+Lire l'état : libre. **Déployer/redémarrer/arrêter = demande TOUJOURS à Arthur
+quel projet sur quelle machine avant d'agir — jamais autonome.** Détails :
+`START.md` §4.
+
 Si `~/2brain/START.md` est absent (machine pas amorcée), relancer `setup*.sh`
 (la lib se synchronise via le token déjà présent dans `secrets`).
 

@@ -46,6 +46,14 @@ instead of polluting code repos.
    `2fleet` (26) is Arthur's autonomous multi-agent orchestrator that manages
    its own buckets/bots (`bot-fleet-*`); agents don't drive its buckets by hand
    but may create/assign tasks to its bots.
+9. **Deployments & infra = always via Coolify.** Documented in `START.md` §4.
+   Coolify (`cool.nobrega.fr`) is Arthur's self-hosted PaaS and the central hub
+   that deploys the rest of the infra. Agents use Coolify's native features to
+   the maximum (no custom deploy scripts / hand-run containers when Coolify can
+   do it). Reading state is free; **any deploy/restart/stop/env change is a
+   confirm-first action — the agent must always ask Arthur which project/app on
+   which machine (`2serv-1/2/mail`) before acting, never autonomously.**
+   Modeled as its own 2brain project `coolify` (facts + servers + project map).
 
 ## Structure
 

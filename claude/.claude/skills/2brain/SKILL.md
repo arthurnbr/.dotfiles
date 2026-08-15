@@ -68,6 +68,21 @@ lui-même ses buckets (`Draft→…→Done`) et ses bots (`bot-fleet-*`) ; ne pa
 piloter ses buckets à la main, mais on peut y créer/assigner des tâches aux bots
 (`vikunja_task_assign`). Détails : `START.md` §3 et `projects/2fleet/facts.md`.
 
+## Déploiements & infra — toujours via Coolify
+
+Méthodo d'Arthur : **tout ce qui touche au déploiement/infra passe au maximum
+par Coolify** (`cool.nobrega.fr`, PaaS auto-hébergé, hub central ; secret
+`~/.secrets/coolify.env`, API `/api/v1/*` + `Bearer $COOLIFY_ACCESS_TOKEN`).
+Utilise au **maximum les features natives de Coolify** (apps, services, DB,
+déploiements, env, rollbacks, logs) ; pas de script de déploiement custom ni de
+`docker run`/compose à la main quand Coolify sait le faire.
+
+**⚠️ Déployer = action à confirmer, jamais autonome.** Lire l'état (apps,
+projets, serveurs, logs) est libre. Mais **avant tout deploy/restart/stop/
+changement de variable, demander à Arthur QUEL projet/app sur QUELLE machine**
+(`2serv-1`, `2serv-2`, `2serv-mail`). Détails : `START.md` §4 et
+`projects/coolify/facts.md`.
+
 ## Structure
 
 ```
