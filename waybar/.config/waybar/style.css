@@ -49,8 +49,8 @@ tooltip label {
   background: #1e1e2e;
   opacity: 0.92;
   padding: 0 12px;
-  margin-top: 8px;
-  margin-bottom: 8px;
+  margin-top: 4px;
+  margin-bottom: 4px;
   border: 1px solid #181825;
 }
 
@@ -75,7 +75,7 @@ tooltip label {
   font-weight: bold;
   color: #636777;
   padding: 0 5px;
-  margin: 4px 2px;
+  margin: 2px 2px;
 }
 #workspaces button:hover {
   background: #11111b;
@@ -115,7 +115,7 @@ tooltip label {
 #window {
   color: #cdd6f4;
   border-radius: 10px;
-  margin: 8px 40px;
+  margin: 2px 40px;
 }
 window#waybar.empty #window {
   background: transparent;

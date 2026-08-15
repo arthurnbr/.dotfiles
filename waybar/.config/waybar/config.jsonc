@@ -3,7 +3,7 @@
   "layer": "top",
   "position": "top",
   "spacing": 0,
-  "height": 46,
+  "height": 28,
   "modules-left": ["clock", "hyprland/workspaces", "custom/update", "custom/screenrecording-indicator"],
   "modules-center": ["hyprland/window"],
   "modules-right": ["network", "bluetooth", "temperature", "memory", "pulseaudio", "battery"],
@@ -27,8 +27,8 @@
   },
 
   "clock": {
-    "format": " {:L%H:%M   %a, %b %d}",
-    "format-alt": " {:L%d %B W%V %Y}",
+    "format": "󰥔 {:L%H:%M   %a, %b %d}",
+    "format-alt": "󰥔 {:L%d %B W%V %Y}",
     "tooltip-format": "<big>{:%Y %B}</big>\n<tt>{calendar}</tt>",
     "on-click-right": "omarchy-launch-floating-terminal-with-presentation omarchy-tz-select"
   },
@@ -52,19 +52,19 @@
   "network": {
     "format-icons": ["󰤯", "󰤟", "󰤢", "󰤥", "󰤨"],
     "format-wifi": "{icon}  {signalStrength}%",
-    "format-ethernet": "󰀂  {ipaddr}",
+    "format-ethernet": "󰈀  {ipaddr}",
     "format-disconnected": "󰤮  Off",
-    "tooltip-format-wifi": "{essid} ({frequency} GHz)\n⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}",
-    "tooltip-format-ethernet": "⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}",
+    "tooltip-format-wifi": "{essid} ({frequency} GHz)\n⤇{bandwidthDownBytes}  ⤅{bandwidthUpBytes}",
+    "tooltip-format-ethernet": "⤇{bandwidthDownBytes}  ⤅{bandwidthUpBytes}",
     "tooltip-format-disconnected": "Disconnected",
     "interval": 3,
     "on-click": "omarchy-launch-wifi"
   },
 
   "bluetooth": {
-    "format": "",
+    "format": "󰂯",
     "format-disabled": "󰂲",
-    "format-connected": " {num_connections}",
+    "format-connected": "󰂱 {num_connections}",
     "tooltip-format": "Devices connected: {num_connections}",
     "tooltip-format-connected": "{device_enumerate}",
     "on-click": "blueberry"
@@ -74,13 +74,13 @@
     "hwmon-path-abs": "/sys/devices/pci0000:00/0000:00:18.3/hwmon",
     "input-filename": "temp1_input",
     "critical-threshold": 85,
-    "format": " {temperatureC}°C",
+    "format": "󰔏 {temperatureC}°C",
     "interval": 10,
     "on-click": "xdg-terminal-exec btop"
   },
 
   "memory": {
-    "format": " {percentage}%",
+    "format": "󰍛 {percentage}%",
     "tooltip-format": "{used:0.1f}G / {total:0.1f}G used",
     "interval": 10,
     "on-click": "xdg-terminal-exec btop"
@@ -88,11 +88,11 @@
 
   "pulseaudio": {
     "format": "{icon} {volume}%",
-    "format-muted": " Muted",
+    "format-muted": "󰝟 Muted",
     "format-icons": {
-      "headphone": " ",
-      "headset": " ",
-      "default": ["", "", ""]
+      "headphone": "󰋋 ",
+      "headset": "󰋎 ",
+      "default": ["󰕿", "󰖀", "󰕾"]
     },
     "scroll-step": 5,
     "on-click": "xdg-terminal-exec --app-id=com.omarchy.Wiremix -e wiremix",
@@ -103,8 +103,8 @@
   "battery": {
     "states": { "warning": 30, "critical": 15 },
     "format": "{icon} {capacity}%",
-    "format-charging": " {capacity}%",
-    "format-plugged": " {capacity}%",
+    "format-charging": "󰂄 {capacity}%",
+    "format-plugged": "󰚥 {capacity}%",
     "format-full": "󰂅 {capacity}%",
     "format-icons": ["󰂎", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"],
     "tooltip-format-discharging": "{power:>1.0f}W↓ {capacity}%",
