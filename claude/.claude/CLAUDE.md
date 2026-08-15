@@ -31,6 +31,8 @@ J'ai une **mémoire persistante, synchronisée sur toutes mes machines** et part
 
 **Déploiements & infra — toujours via Coolify** (`cool.nobrega.fr`, secret `~/.secrets/coolify.env`) : utilise au **maximum les features natives de Coolify**, pas de déploiement manuel/script custom quand Coolify sait le faire. Lire l'état : libre. **Déployer/redémarrer/arrêter = demande TOUJOURS à Arthur quel projet sur quelle machine avant d'agir — jamais autonome.** Détails : `START.md` §4.
 
+**Livrer un document** : quand tu me transmets un fichier, donne-moi **le chemin local** (si je suis sur l'hôte) **et** un **lien de téléchargement Seafile** (sinon, pour faciliter l'échange). Je te dirai si l'un des deux est superflu. Un lien n'est possible que pour un fichier dans une lib Seafile — `~/2brain/…` en est une (dépose les livrables là). Détails : `START.md` §5.
+
 Si `~/2brain/START.md` est absent (machine pas encore amorcée), relancer `setup*.sh` (la lib se synchronise via le token déjà présent dans `secrets`).
 
 

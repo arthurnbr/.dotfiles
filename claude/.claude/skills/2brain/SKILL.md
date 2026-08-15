@@ -83,6 +83,18 @@ changement de variable, demander à Arthur QUEL projet/app sur QUELLE machine**
 (`2serv-1`, `2serv-2`, `2serv-mail`). Détails : `START.md` §4 et
 `projects/coolify/facts.md`.
 
+## Livrer un document à Arthur
+
+Quand tu produis un fichier destiné à Arthur, **donne les deux** : (1) le
+**chemin local** (utile s'il est sur l'hôte), (2) un **lien de téléchargement
+Seafile** (utile sinon). Arthur dira si l'un est superflu — proposer les deux
+par défaut. Un lien n'est possible que pour un fichier **dans une lib Seafile** :
+`~/2brain/…` en est une (repo `2brain`) → déposer les livrables là plutôt qu'en
+scratch (non partageable). Créer le lien :
+`POST /api/v2.1/share-links/` avec `repo_id` + `path` (token
+`~/.secrets/seafile.env`) → `https://drive.nobrega.fr/f/<token>/`. Cf.
+`START.md` §5 et skill `seafile`.
+
 ## Structure
 
 ```

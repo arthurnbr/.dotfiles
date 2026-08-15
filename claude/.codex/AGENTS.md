@@ -36,6 +36,12 @@ Lire l'état : libre. **Déployer/redémarrer/arrêter = demande TOUJOURS à Art
 quel projet sur quelle machine avant d'agir — jamais autonome.** Détails :
 `START.md` §4.
 
+**Livrer un document** : quand tu transmets un fichier à Arthur, donne **le
+chemin local** (s'il est sur l'hôte) **et** un **lien de téléchargement Seafile**
+(sinon). Il dira si l'un est superflu. Lien possible seulement pour un fichier
+dans une lib Seafile — `~/2brain/…` en est une (y déposer les livrables).
+Détails : `START.md` §5.
+
 Si `~/2brain/START.md` est absent (machine pas amorcée), relancer `setup*.sh`
 (la lib se synchronise via le token déjà présent dans `secrets`).
 

@@ -54,6 +54,14 @@ instead of polluting code repos.
    confirm-first action — the agent must always ask Arthur which project/app on
    which machine (`2serv-1/2/mail`) before acting, never autonomously.**
    Modeled as its own 2brain project `coolify` (facts + servers + project map).
+10. **Document delivery = local path + Seafile link.** Documented in `START.md`
+    §5. When handing Arthur a file, the agent offers **both** the local path
+    (useful when he's on the host) and a **Seafile download link** (useful
+    otherwise); Arthur says if either is superfluous. A link requires the file
+    to live in a Seafile library — `~/2brain/…` is one, so deliverables land
+    there (scratch is unshareable). Link via `POST /api/v2.1/share-links/`
+    (`repo_id` + `path`) → `https://drive.nobrega.fr/f/<token>/`. Verified live
+    (create + delete round-trip).
 
 ## Structure
 
