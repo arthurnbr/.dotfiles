@@ -54,3 +54,9 @@ macos-option-as-alt = true
 copy-on-select = clipboard
 confirm-close-surface = false
 mouse-hide-while-typing = true
+
+# Send Shift+Enter as CSI-u so TUIs can distinguish it from Enter.
+keybind = shift+enter=csi:13;2u
+
+# Legacy encoding sends Alt+Shift+Enter the same as Alt+Enter; send CSI-u so tmux can match M-S-Enter.
+keybind = alt+shift+enter=csi:13;4u
