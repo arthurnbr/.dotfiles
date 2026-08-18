@@ -2,9 +2,9 @@
 -- https://wiki.hypr.land/Configuring/Basics/Variables/
 hl.config({
   general = {
-    -- Remove the gap under the top bar; keep 10px on the other sides.
-    -- Fields: top, right, bottom, left.
-    gaps_out = { top = 0, right = 10, bottom = 10, left = 10 },
+    -- Uniform gap all around, so the space under the top bar matches the
+    -- screen-edge gap on the sides.
+    gaps_out = 10,
   },
 
   decoration = {
