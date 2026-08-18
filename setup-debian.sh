@@ -7,7 +7,7 @@ if [ "$EUID" -eq 0 ]; then
 fi
 
 DOTFILES_DIR="$(cd "$(dirname "$0")" && pwd)"
-# Headless server subset — GUI packages (ghostty, zed, hypr, waybar, keyd, karabiner) are intentionally excluded.
+# Headless server subset — GUI packages (ghostty, zed, hypr, keyd, karabiner) are intentionally excluded.
 PACKAGES=(zsh tmux git claude starship nvim bin herdr ssh)
 
 echo "==> Dotfiles setup (Debian) from $DOTFILES_DIR"

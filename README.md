@@ -14,8 +14,7 @@ Personal dotfiles managed with [GNU Stow](https://www.gnu.org/software/stow/).
 | `starship` | Starship prompt config | all |
 | `claude` | Global `CLAUDE.md` + Codex `AGENTS.md` + OMP/Claude skills (`seafile`, `dolibarr`, `vikunja`, `2brain`, …) + local MCP servers (`dolibarr`, `vikunja`) | all |
 | `karabiner` | Karabiner-Elements key remappings | macOS |
-| `hypr` | Hyprland personal configs (bindings, monitors, input, etc.) | Linux (Omarchy) |
-| `waybar` | Waybar config + style | Linux (Omarchy) |
+| `hypr` | Hyprland personal configs — Lua overrides (bindings, input, look'n'feel) + `hyprsunset.conf` | Linux (Omarchy) |
 | `keyd` | System-wide key remapping (Alt+HJKL → arrows). Not stowed — `setup-arch.sh` deploys `keyd/default.conf` to `/etc/keyd/` and enables the daemon. | Linux |
 
 ## New machine setup
