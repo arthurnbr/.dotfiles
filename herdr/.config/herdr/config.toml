@@ -10,3 +10,7 @@ pane_history = false
 [ui]
 agent_panel_scope = "all"
 show_agent_labels_on_pane_borders = false
+
+[ui.sidebar.spaces]
+# Lignes vides entre chaque workspace dans la sidebar (0 = collé, 1 = une ligne d'espacement).
+row_gap = 1
