@@ -31,3 +31,9 @@ bin/.local/bin/fonttools
 bin/.local/bin/ttx
 bin/.local/bin/pyftsubset
 bin/.local/bin/pyftmerge
+
+# Codex runtime state (~/.codex is a folded stow symlink into this package, so
+# Codex writes its dbs/logs/session dirs straight into the repo). Only AGENTS.md
+# is tracked; ignore everything else Codex generates.
+claude/.codex/*
+!claude/.codex/AGENTS.md
