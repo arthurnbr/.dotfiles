@@ -9,7 +9,28 @@ fi
 DOTFILES_DIR="$(cd "$(dirname "$0")" && pwd)"
 PACKAGES=(zsh tmux ghostty zed git claude hypr starship nvim bin herdr ssh)
 
-echo "==> Dotfiles setup (Arch Linux) from $DOTFILES_DIR"
+# ── Omarchy 4 awareness ───────────────────────────────────────────────
+# On Omarchy we drive installs through `omarchy pkg`, which missing-checks
+# then wraps pacman (repos) / yay (AUR). On plain Arch we fall back directly.
+if command -v omarchy >/dev/null 2>&1; then
+  IS_OMARCHY=1
+  echo "==> Omarchy detected ($(omarchy version 2>/dev/null | head -1)) — installs via 'omarchy pkg'"
+else
+  IS_OMARCHY=0
+fi
+
+pkg_install() {   # official-repo packages
+  if [ "$IS_OMARCHY" = 1 ]; then omarchy pkg add "$@"; else sudo pacman -S --needed --noconfirm "$@"; fi
+}
+
+aur_install() {   # AUR packages
+  if [ "$IS_OMARCHY" = 1 ]; then omarchy pkg aur add "$@"
+  elif command -v yay >/dev/null 2>&1; then yay -S --needed --noconfirm "$@"
+  elif command -v paru >/dev/null 2>&1; then paru -S --needed --noconfirm "$@"
+  else return 1; fi
+}
+
+echo "==> Dotfiles setup (Arch / Omarchy) from $DOTFILES_DIR"
 
 # ──────────────────────────────────────────
 # 1. Install pacman packages
@@ -42,8 +63,8 @@ PACMAN_PKGS=(
   tree-sitter-cli
 )
 
-echo "==> Installing pacman packages..."
-sudo pacman -S --needed --noconfirm "${PACMAN_PKGS[@]}"
+echo "==> Installing packages..."
+pkg_install "${PACMAN_PKGS[@]}"
 
 # ──────────────────────────────────────────
 # 2. Install Oh My Zsh if missing
@@ -78,6 +99,11 @@ for pkg in "${PACKAGES[@]}"; do
   echo "  - $pkg"
   stow -v --target="$HOME" --restow "$pkg"
 done
+
+# Reload Hyprland so freshly-stowed Lua overrides apply immediately (Omarchy 4).
+if command -v hyprctl >/dev/null 2>&1 && hyprctl version >/dev/null 2>&1; then
+  hyprctl reload >/dev/null 2>&1 || true
+fi
 
 # ──────────────────────────────────────────
 # 5b. Skills (OMP) + Seafile drive (secrets lib only; content on demand)
@@ -125,13 +151,7 @@ fi
 if [ -n "${SEAFILE_TOKEN:-}" ] && [ -n "${SEAFILE_URL:-}" ]; then
   # seaf-cli lives in the AUR (package `seafile`, provides seaf-cli).
   if ! command -v seaf-cli >/dev/null 2>&1; then
-    if command -v yay >/dev/null 2>&1; then
-      yay -S --needed --noconfirm seafile || true
-    elif command -v paru >/dev/null 2>&1; then
-      paru -S --needed --noconfirm seafile || true
-    else
-      echo "  ! seaf-cli missing and no AUR helper; install 'seafile' (AUR) manually." >&2
-    fi
+    aur_install seafile || echo "  ! seaf-cli missing and AUR install failed; install 'seafile' manually." >&2
   fi
   if command -v seaf-cli >/dev/null 2>&1 && [ ! -d "$SEAFILE_SECRETS_DIR" ]; then
     mkdir -p "$SEAFILE_CHECKOUT_DIR"
@@ -196,7 +216,9 @@ fi
 mkdir -p "$HOME/2brain-scratch"   # local, jamais synchronisé (travail jetable des agents)
 
 # ──────────────────────────────────────────
-# 6. Set ghostty as default terminal (xdg-terminal-exec)
+# 6. Set ghostty as default terminal
+#    Omarchy 4 exports TERMINAL=xdg-terminal-exec (see ~/.config/uwsm/default);
+#    xdg-terminal-exec launches the first entry in ~/.config/xdg-terminals.list.
 # ──────────────────────────────────────────
 mkdir -p "$HOME/.config"
 if ! grep -qx "com.mitchellh.ghostty.desktop" "$HOME/.config/xdg-terminals.list" 2>/dev/null; then

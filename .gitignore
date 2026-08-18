@@ -15,9 +15,6 @@ karabiner/.config/karabiner/assets/
 zsh/.zcompdump*
 zsh/.zsh_history
 
-# Waybar runtime backups
-waybar/.config/waybar/*.bak.*
-
 # Skill secrets never go in git — tokens live in Seafile (~/.secrets). *.env.example is OK.
 claude/.claude/skills/**/*.env
 
