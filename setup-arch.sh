@@ -7,7 +7,7 @@ if [ "$EUID" -eq 0 ]; then
 fi
 
 DOTFILES_DIR="$(cd "$(dirname "$0")" && pwd)"
-PACKAGES=(zsh tmux ghostty zed git claude hypr starship nvim bin herdr ssh)
+PACKAGES=(zsh tmux ghostty zed git claude hypr starship nvim bin herdr ssh omarchy)
 
 # ── Omarchy 4 awareness ───────────────────────────────────────────────
 # On Omarchy we drive installs through `omarchy pkg`, which missing-checks
