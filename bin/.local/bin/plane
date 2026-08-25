@@ -1,0 +1,269 @@
+#!/usr/bin/env bash
+# plane — lightweight CLI wrapper for the Plane REST API (self-hosted).
+# Reads its config from ~/.secrets/plane.env (Seafile-synced across machines):
+#   PLANE_URL=https://plane.eduvia.dev
+#   PLANE_TOKEN=plane_api_xxxxxxxxxxxx
+#   PLANE_WORKSPACE=eduvia
+# No secret is stored in this script or in git. Requires: curl, python3.
+
+set -euo pipefail
+
+SECRET="${PLANE_ENV:-$HOME/.secrets/plane.env}"
+if [ ! -r "$SECRET" ]; then
+  echo "plane: $SECRET not readable — create ~/.secrets/plane.env (PLANE_URL/PLANE_TOKEN/PLANE_WORKSPACE)." >&2
+  exit 1
+fi
+# shellcheck disable=SC1090
+set -a; . "$SECRET"; set +a
+HOST="${PLANE_URL:?PLANE_URL missing in $SECRET}"
+TOKEN="${PLANE_TOKEN:?PLANE_TOKEN missing in $SECRET}"
+WORKSPACE="${PLANE_WORKSPACE:?PLANE_WORKSPACE missing in $SECRET}"
+
+api() {
+  local method="${1}" path="${2}"; shift 2
+  curl -sf -X "$method" \
+    -H "X-API-Key: $TOKEN" \
+    -H "Content-Type: application/json" \
+    "$@" "${HOST}/api/v1${path}"
+}
+
+# Resolve a project slug / identifier / name → UUID (default: eduvia).
+# A UUID is passed through untouched; otherwise the workspace projects are
+# queried and matched on identifier or name (case-insensitive).
+resolve_project() {
+  local input="${1:-eduvia}"
+  if [[ "$input" =~ ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$ ]]; then
+    printf '%s' "$input"; return
+  fi
+  api GET "/workspaces/$WORKSPACE/projects/" | INPUT="$input" python3 -c "
+import json, os, sys
+key = os.environ['INPUT'].lower()
+data = json.load(sys.stdin)
+for p in data.get('results', []):
+    if p.get('identifier','').lower() == key or p.get('name','').lower() == key:
+        print(p['id']); break
+else:
+    print(os.environ['INPUT'])
+"
+}
+
+cmd="${1:-help}"; shift || true
+
+case "$cmd" in
+  # ── Projects ──────────────────────────────────────────────
+  projects)
+    api GET "/workspaces/$WORKSPACE/projects/" | python3 -c "
+import json, sys
+data = json.load(sys.stdin)
+for p in data.get('results', []):
+    print(f\"{p['identifier']:8s} {p['name']:20s} members={p['total_members']} modules={p['total_modules']}\")
+"
+    ;;
+
+  # ── Work Items (issues) ──────────────────────────────────
+  items|issues|list)
+    project=$(resolve_project "${1:-eduvia}"); shift || true
+    per_page="${1:-20}"; shift || true
+    extra_params=""
+    # Parse remaining flags
+    while [[ $# -gt 0 ]]; do
+      case "$1" in
+        --state=*) extra_params="${extra_params}&state=${1#*=}" ;;
+        --assignee=*) extra_params="${extra_params}&assignees=${1#*=}" ;;
+        --priority=*) extra_params="${extra_params}&priority=${1#*=}" ;;
+        --cursor=*) extra_params="${extra_params}&cursor=${1#*=}" ;;
+        *) extra_params="${extra_params}&${1}" ;;
+      esac
+      shift
+    done
+    api GET "/workspaces/$WORKSPACE/projects/$project/work-items/?per_page=$per_page&expand=state,assignees${extra_params}" | python3 -c "
+import json, sys
+data = json.load(sys.stdin)
+print(f\"Showing {data['count']}/{data['total_results']} items (page {data.get('total_pages',1)})\")
+if data.get('next_page_results'): print(f\"Next: --cursor={data['next_cursor']}\")
+for item in data.get('results', []):
+    seq = item.get('sequence_id', '?')
+    name = item.get('name', '')[:90]
+    priority = (item.get('priority') or 'none')[:6]
+    state = item.get('state', {})
+    state_name = (state.get('name', '?') if isinstance(state, dict) else '?')
+    asgn = item.get('assignees', [])
+    assignees = ','.join([a.get('display_name','?') for a in asgn]) if isinstance(asgn, list) and asgn else '-'
+    print(f\"  {seq:>4} | {priority:6s} | {state_name:16s} | {assignees:16s} | {name}\")
+"
+    ;;
+
+  # ── Single work item ─────────────────────────────────────
+  item|show|get)
+    project=$(resolve_project "${1:-eduvia}"); shift || true
+    item_id="$1"; shift || true
+    api GET "/workspaces/$WORKSPACE/projects/$project/work-items/$item_id/?expand=assignees,state,labels,parent" | python3 -c "
+import json, sys
+i = json.load(sys.stdin)
+print(f\"#{i.get('sequence_id','')} — {i.get('name','')}\")
+state = i.get('state', {})
+print(f\"State:    {state.get('name','?') if isinstance(state, dict) else '?'}\")
+print(f\"Priority: {i.get('priority','none')}\")
+assignees = i.get('assignees', []) or []
+if isinstance(assignees, list) and assignees and isinstance(assignees[0], dict):
+    print(f\"Assigned: {', '.join(a.get('display_name','?') for a in assignees)}\")
+else:
+    print(f\"Assigned: -\")
+labels = i.get('labels', []) or []
+if isinstance(labels, list) and labels and isinstance(labels[0], dict):
+    print(f\"Labels:   {', '.join(l.get('name','?') for l in labels)}\")
+parent = i.get('parent')
+if isinstance(parent, dict):
+    print(f\"Parent:   #{parent.get('sequence_id','')} {parent.get('name','')}\")
+desc = i.get('description_stripped') or i.get('description_text') or ''
+if desc: print(f\"\\n{desc[:2000]}\")
+"
+    ;;
+
+  # ── States ────────────────────────────────────────────────
+  states)
+    project=$(resolve_project "${1:-eduvia}")
+    api GET "/workspaces/$WORKSPACE/projects/$project/states/" | python3 -c "
+import json, sys
+data = json.load(sys.stdin)
+for s in data.get('results', []):
+    print(f\"  {s['id']}  {s['group']:12s}  {s['name']}\")
+"
+    ;;
+
+  # ── Labels ────────────────────────────────────────────────
+  labels)
+    project=$(resolve_project "${1:-eduvia}")
+    api GET "/workspaces/$WORKSPACE/projects/$project/labels/" | python3 -c "
+import json, sys
+data = json.load(sys.stdin)
+for l in data.get('results', []):
+    print(f\"  {l['id']}  {l.get('color',''):8s}  {l['name']}\")
+"
+    ;;
+
+  # ── Members ───────────────────────────────────────────────
+  members)
+    project=$(resolve_project "${1:-eduvia}")
+    api GET "/workspaces/$WORKSPACE/projects/$project/members/" | python3 -c "
+import json, sys
+data = json.load(sys.stdin)
+for m in data.get('results', []):
+    member = m.get('member_detail') or m.get('member', {})
+    role = m.get('role', '?')
+    display = member.get('display_name', '?') if isinstance(member, dict) else '?'
+    uid = member.get('id', m.get('member','?')) if isinstance(member, dict) else m.get('member','?')
+    print(f\"  {uid}  role={role:>3}  {display}\")
+"
+    ;;
+
+  # ── Modules ───────────────────────────────────────────────
+  modules)
+    project=$(resolve_project "${1:-eduvia}")
+    api GET "/workspaces/$WORKSPACE/projects/$project/modules/" | python3 -c "
+import json, sys
+data = json.load(sys.stdin)
+for m in data.get('results', []):
+    print(f\"  {m['id'][:8]}…  {m.get('name','?'):40s}  status={m.get('status','?')}\")
+"
+    ;;
+
+  # ── Cycles (sprints) ──────────────────────────────────────
+  cycles)
+    project=$(resolve_project "${1:-eduvia}")
+    api GET "/workspaces/$WORKSPACE/projects/$project/cycles/" | python3 -c "
+import json, sys
+data = json.load(sys.stdin)
+for c in data.get('results', []):
+    print(f\"  {c['id'][:8]}…  {c.get('name','?'):32s}  {c.get('start_date') or '—'} → {c.get('end_date') or '—'}\")
+"
+    ;;
+
+  # ── Create work item ─────────────────────────────────────
+  create)
+    project=$(resolve_project "${1:-eduvia}"); shift || true
+    name="$1"; shift || true
+    # Remaining args as JSON fields
+    extra_json=""
+    while [[ $# -gt 0 ]]; do
+      case "$1" in
+        --state=*)    extra_json="$extra_json, \"state\": \"${1#*=}\"" ;;
+        --priority=*) extra_json="$extra_json, \"priority\": \"${1#*=}\"" ;;
+        --assignee=*) extra_json="$extra_json, \"assignees\": [\"${1#*=}\"]" ;;
+        --parent=*)   extra_json="$extra_json, \"parent\": \"${1#*=}\"" ;;
+        --desc=*)     extra_json="$extra_json, \"description_html\": \"<p>${1#*=}</p>\"" ;;
+        --label=*)    extra_json="$extra_json, \"labels\": [\"${1#*=}\"]" ;;
+      esac
+      shift
+    done
+    api POST "/workspaces/$WORKSPACE/projects/$project/work-items/" \
+      -d "{\"name\": \"$name\"$extra_json}" | python3 -c "
+import json, sys
+i = json.load(sys.stdin)
+print(f\"Created #{i.get('sequence_id','')} — {i.get('name','')}\")
+print(f\"ID: {i.get('id','')}\")
+"
+    ;;
+
+  # ── Update work item ─────────────────────────────────────
+  update)
+    project=$(resolve_project "${1:-eduvia}"); shift || true
+    item_id="$1"; shift || true
+    json_body="{"
+    first=true
+    while [[ $# -gt 0 ]]; do
+      $first || json_body="$json_body,"
+      first=false
+      case "$1" in
+        --name=*)     json_body="$json_body \"name\": \"${1#*=}\"" ;;
+        --state=*)    json_body="$json_body \"state\": \"${1#*=}\"" ;;
+        --priority=*) json_body="$json_body \"priority\": \"${1#*=}\"" ;;
+        --assignee=*) json_body="$json_body \"assignees\": [\"${1#*=}\"]" ;;
+        --parent=*)   json_body="$json_body \"parent\": \"${1#*=}\"" ;;
+      esac
+      shift
+    done
+    json_body="$json_body}"
+    api PATCH "/workspaces/$WORKSPACE/projects/$project/work-items/$item_id/" \
+      -d "$json_body" | python3 -c "
+import json, sys
+i = json.load(sys.stdin)
+print(f\"Updated #{i.get('sequence_id','')} — {i.get('name','')}\")
+"
+    ;;
+
+  # ── Raw API call ──────────────────────────────────────────
+  raw)
+    method="${1:-GET}"; shift || true
+    path="$1"; shift || true
+    api "$method" "/workspaces/$WORKSPACE$path" "$@"
+    ;;
+
+  # ── Help ──────────────────────────────────────────────────
+  help|*)
+    cat <<'EOF'
+plane — Plane API CLI for Eduvia  (config: ~/.secrets/plane.env)
+
+Usage: plane <command> [args...]
+
+Commands:
+  projects                          List all projects
+  items [project] [per_page] [flags]  List work items (issues)
+  item [project] <item_id>          Show a single work item
+  states [project]                  List workflow states
+  labels [project]                  List labels
+  members [project]                 List project members
+  modules [project]                 List modules
+  cycles [project]                  List cycles (sprints)
+  create [project] <name> [flags]   Create a work item
+  update [project] <item_id> [flags]  Update a work item
+  raw <METHOD> <path> [curl args]   Raw API call (path relative to /workspaces/<ws>)
+
+Project defaults to "eduvia". Use slug, identifier (EDUVIA/SOL) or UUID.
+
+Flags for items:  --state=UUID --assignee=UUID --priority=urgent|high|medium|low|none --cursor=...
+Flags for create: --state=UUID --priority=... --assignee=UUID --parent=UUID --desc="..." --label=UUID
+Flags for update: --name="..." --state=UUID --priority=... --assignee=UUID --parent=UUID
+EOF
+    ;;
+esac

@@ -19,7 +19,7 @@ fi
 # 2. Install stow + common tools
 # ──────────────────────────────────────────
 echo "==> Installing packages..."
-brew install stow eza bat fzf zoxide fnm rbenv zsh-syntax-highlighting zsh-autosuggestions starship neovim ripgrep fd lazygit tree-sitter jq
+brew install stow eza bat fzf zoxide fnm rbenv zsh-syntax-highlighting zsh-autosuggestions starship neovim ripgrep fd lazygit tree-sitter jq tea
 
 # ──────────────────────────────────────────
 # 3. Install Oh My Zsh if missing
@@ -154,6 +154,14 @@ if [ -d "$SEAFILE_2BRAIN_DIR" ]; then
   fi
 fi
 mkdir -p "$HOME/2brain-scratch"   # local, jamais synchronisé (travail jetable des agents)
+
+# ── Gitea (tea) login for project management (Eduvia) ──────────────────
+# Wire `tea` to git.eduvia.dev from ~/.secrets/gitea.env (no-op until synced).
+# Plane uses the stowed `plane` wrapper, which reads ~/.secrets/plane.env.
+if [ -x "$DOTFILES_DIR/bin/.local/bin/gitea-login" ]; then
+  echo "==> Configuring Gitea (tea) login..."
+  "$DOTFILES_DIR/bin/.local/bin/gitea-login" || true
+fi
 
 echo ""
 echo "==> Done! Restart your shell or run: source ~/.zshrc"

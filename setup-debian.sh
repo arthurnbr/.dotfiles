@@ -34,6 +34,25 @@ mkdir -p "$HOME/.local/bin"
 if command -v batcat >/dev/null 2>&1 && [ ! -e "$HOME/.local/bin/bat" ]; then ln -s "$(command -v batcat)" "$HOME/.local/bin/bat"; fi
 if command -v fdfind >/dev/null 2>&1 && [ ! -e "$HOME/.local/bin/fd" ]; then ln -s "$(command -v fdfind)" "$HOME/.local/bin/fd"; fi
 
+# tea (Gitea CLI) — no apt package; install the official static binary to ~/.local/bin.
+if ! command -v tea >/dev/null 2>&1; then
+  echo "==> Installing tea (Gitea CLI)..."
+  _tea_arch="$(dpkg --print-architecture 2>/dev/null || uname -m)"
+  case "$_tea_arch" in
+    amd64|x86_64)  _tea_arch=amd64 ;;
+    arm64|aarch64) _tea_arch=arm64 ;;
+    *)             _tea_arch=amd64 ;;
+  esac
+  _tea_ver="$(curl -fsS -m 20 'https://gitea.com/api/v1/repos/gitea/tea/releases?limit=1' | jq -r '.[0].tag_name' 2>/dev/null | sed 's/^v//')"
+  if [ -n "${_tea_ver:-}" ] && [ "$_tea_ver" != "null" ] && \
+     curl -fsSL -m 60 "https://dl.gitea.com/tea/${_tea_ver}/tea-${_tea_ver}-linux-${_tea_arch}" -o "$HOME/.local/bin/tea"; then
+    chmod +x "$HOME/.local/bin/tea"
+  else
+    echo "  ! tea install failed — grab a binary from https://dl.gitea.com/tea/ manually." >&2
+    rm -f "$HOME/.local/bin/tea"
+  fi
+fi
+
 # ──────────────────────────────────────────
 # 2. Install Oh My Zsh if missing (KEEP_ZSHRC so it never clobbers the stowed ~/.zshrc)
 # ──────────────────────────────────────────
@@ -173,6 +192,14 @@ if [ -d "$SEAFILE_2BRAIN_DIR" ]; then
   fi
 fi
 mkdir -p "$HOME/2brain-scratch"   # local, jamais synchronisé (travail jetable des agents)
+
+# ── Gitea (tea) login for project management (Eduvia) ──────────────────
+# Wire `tea` to git.eduvia.dev from ~/.secrets/gitea.env (no-op until synced).
+# Plane uses the stowed `plane` wrapper, which reads ~/.secrets/plane.env.
+if [ -x "$DOTFILES_DIR/bin/.local/bin/gitea-login" ]; then
+  echo "==> Configuring Gitea (tea) login..."
+  "$DOTFILES_DIR/bin/.local/bin/gitea-login" || true
+fi
 
 # ──────────────────────────────────────────
 # 6. Set zsh as default shell if needed

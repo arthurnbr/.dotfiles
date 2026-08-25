@@ -60,6 +60,7 @@ PACMAN_PKGS=(
   ripgrep
   fd
   lazygit
+  tea
   tree-sitter-cli
 )
 
@@ -214,6 +215,17 @@ if [ -d "$SEAFILE_2BRAIN_DIR" ]; then
   fi
 fi
 mkdir -p "$HOME/2brain-scratch"   # local, jamais synchronisé (travail jetable des agents)
+
+# ──────────────────────────────────────────
+# 5c. Gitea (tea) login for project management (Eduvia)
+#    `tea` (installed above) is wired to git.eduvia.dev from ~/.secrets/gitea.env
+#    — no-op until that secret is synced. Plane uses the stowed `plane` wrapper,
+#    which reads ~/.secrets/plane.env directly, so there is nothing to configure.
+# ──────────────────────────────────────────
+if [ -x "$DOTFILES_DIR/bin/.local/bin/gitea-login" ]; then
+  echo "==> Configuring Gitea (tea) login..."
+  "$DOTFILES_DIR/bin/.local/bin/gitea-login" || true
+fi
 
 # ──────────────────────────────────────────
 # 6. Set ghostty as default terminal

@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+# gitea-login — configure the `tea` CLI login for Gitea from ~/.secrets/gitea.env.
+# Idempotent: safe to run on every machine and on every `setup*.sh` pass. It is a
+# no-op when `tea` or the secret is missing, so it never breaks a bootstrap.
+# The token lives only in ~/.secrets (Seafile-synced) — never in git.
+#
+# ~/.secrets/gitea.env:
+#   GITEA_URL=https://git.eduvia.dev
+#   GITEA_USER=arthurnbr
+#   GITEA_TOKEN=xxxxxxxxxxxx        # Settings > Applications > Access tokens
+#   GITEA_SSH_HOST=git.eduvia.dev   # optional
+set -euo pipefail
+
+SECRET="${GITEA_ENV:-$HOME/.secrets/gitea.env}"
+
+command -v tea >/dev/null 2>&1 || { echo "gitea-login: 'tea' not installed — skip."; exit 0; }
+[ -r "$SECRET" ] || { echo "gitea-login: $SECRET not readable — skip."; exit 0; }
+
+# shellcheck disable=SC1090
+set -a; . "$SECRET"; set +a
+: "${GITEA_URL:?GITEA_URL missing in $SECRET}"
+: "${GITEA_TOKEN:?GITEA_TOKEN missing in $SECRET}"
+: "${GITEA_USER:?GITEA_USER missing in $SECRET}"
+
+# Login name = host (e.g. git.eduvia.dev).
+NAME="$(printf '%s' "$GITEA_URL" | sed -E 's#^https?://##; s#/.*$##')"
+
+# Recreate the login so a rotated token is always applied cleanly.
+tea logins delete "$NAME" >/dev/null 2>&1 || true
+
+# Token-only login: drives `tea` (API: repos, issues, PRs, boards); git over SSH
+# (the eduvia remote) needs nothing more. For silent HTTPS push/clone with the
+# token, opt in per machine with `tea login helper setup` — deliberately kept out
+# of the shared, stowed ~/.gitconfig.
+ADD=(tea logins add --name "$NAME" --url "$GITEA_URL" --token "$GITEA_TOKEN"
+     --user "$GITEA_USER")
+[ -r "$HOME/.ssh/id_ed25519" ] && ADD+=(--ssh-key "$HOME/.ssh/id_ed25519")
+
+if "${ADD[@]}" >/dev/null 2>&1; then
+  echo "gitea-login: configured tea login '$NAME' (user $GITEA_USER)."
+else
+  echo "gitea-login: 'tea logins add' failed for '$NAME' — check token/URL in $SECRET." >&2
+  exit 1
+fi
