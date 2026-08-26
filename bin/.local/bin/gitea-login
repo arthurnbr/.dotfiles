@@ -37,6 +37,10 @@ ADD=(tea logins add --name "$NAME" --url "$GITEA_URL" --token "$GITEA_TOKEN"
 [ -r "$HOME/.ssh/id_ed25519" ] && ADD+=(--ssh-key "$HOME/.ssh/id_ed25519")
 
 if "${ADD[@]}" >/dev/null 2>&1; then
+  # Mark it the default login so tea uses it outside any repo context, without
+  # the interactive "no login matched … falling back" prompt on single-login
+  # machines. Harmless if more logins are added later (default is just a fallback).
+  tea logins default "$NAME" >/dev/null 2>&1 || true
   echo "gitea-login: configured tea login '$NAME' (user $GITEA_USER)."
 else
   echo "gitea-login: 'tea logins add' failed for '$NAME' — check token/URL in $SECRET." >&2
