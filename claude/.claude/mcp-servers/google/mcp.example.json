@@ -1,0 +1,10 @@
+{
+  "_comment": "Copy the 'google' entry into any MCP client's server map. Use an ABSOLUTE path to launch.sh. The launcher loads its own secret from ~/.secrets/google.env and runs taylorwilsdon/workspace-mcp via uvx (needs 'uv' on PATH: ~/.local/bin). Tools: Gmail + Calendar, single-user. OAuth token cached in ~/.secrets/google/credentials -> Seafile-synced = connect once, everywhere. One-time auth: bash ~/.claude/mcp-servers/google/auth-once.sh",
+  "mcpServers": {
+    "google": {
+      "type": "stdio",
+      "command": "bash",
+      "args": ["/home/arthur/.claude/mcp-servers/google/launch.sh"]
+    }
+  }
+}
