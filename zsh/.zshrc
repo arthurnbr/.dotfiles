@@ -1,3 +1,12 @@
+# Homebrew on PATH — covers non-login shells (Linux terminals) that skip .zprofile.
+# Guarded so shells that already sourced .zprofile (macOS, SSH) don't re-eval it.
+if ! command -v brew &>/dev/null; then
+  for _brew in /opt/homebrew/bin/brew /usr/local/bin/brew /home/linuxbrew/.linuxbrew/bin/brew "$HOME/.linuxbrew/bin/brew"; do
+    [ -x "$_brew" ] && { eval "$("$_brew" shellenv zsh)"; break; }
+  done
+  unset _brew
+fi
+
 # Load oh-my-zsh
 export ZSH="$HOME/.oh-my-zsh"
 

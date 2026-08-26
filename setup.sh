@@ -12,7 +12,15 @@ echo "==> Dotfiles setup from $DOTFILES_DIR"
 if ! command -v brew &>/dev/null; then
   echo "==> Installing Homebrew..."
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-  eval "$(/opt/homebrew/bin/brew shellenv zsh)"
+fi
+# Put brew on PATH for the rest of this script — macOS (/opt/homebrew or /usr/local)
+# and Linux (/home/linuxbrew/.linuxbrew). The stowed zsh config (.zprofile/.zshrc)
+# does the same for every future shell, so there is nothing to append to ~/.zshrc.
+if ! command -v brew &>/dev/null; then
+  for _brew in /opt/homebrew/bin/brew /usr/local/bin/brew /home/linuxbrew/.linuxbrew/bin/brew "$HOME/.linuxbrew/bin/brew"; do
+    [ -x "$_brew" ] && { eval "$("$_brew" shellenv)"; break; }
+  done
+  unset _brew
 fi
 
 # ──────────────────────────────────────────
