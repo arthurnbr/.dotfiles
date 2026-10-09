@@ -6,8 +6,8 @@ et agrège les en-têtes Anthropic unified rate-limit (fenêtres 5h / 7j) par co
 
 Usage:
   cpamc-quota            tableau lisible + verdict
-  cpamc-quota --json     JSON (pour agents / scripts)
   cpamc-quota --verdict  une seule ligne: GO | SLOW | STOP + raison
+  cpamc-quota --alert    silencieux sauf changement de verdict / comptes bloqués (pour cron)
 
 Verdict (sur les comptes Claude actifs, non désactivés, sans cooldown):
   GO    au moins un compte < 70 % sur 5h ET pool 7j moyen < 80 %  -> tâches autonomes OK
@@ -129,11 +129,36 @@ def main():
     try:
         data = fetch("auth-files", key)
     except urllib.error.URLError as e:
-        print("STOP proxy injoignable: %s" % e if "--verdict" in sys.argv else json.dumps({"verdict": "STOP", "reason": str(e)}))
+        if "--alert" in sys.argv:
+            print(f"⚠️ ai.eduvia.dev injoignable (management API) : {e}")
+        else:
+            print("STOP proxy injoignable: %s" % e if "--verdict" in sys.argv else json.dumps({"verdict": "STOP", "reason": str(e)}))
         sys.exit(2)
     now = time.time()
     accts = [account_state(f, now) for f in data.get("files", [])]
     v, why = verdict(accts)
+    if "--alert" in sys.argv:
+        # silencieux tant que verdict + comptes en cooldown inchangés ; sinon 1 message court
+        state_p = os.path.expanduser("~/.local/state/cpamc-quota.json")
+        os.makedirs(os.path.dirname(state_p), exist_ok=True)
+        cd = sorted(a["email"] for a in accts if a["cooldowns"] or a["disabled"])
+        cur = {"verdict": v, "blocked": cd}
+        try:
+            prev = json.load(open(state_p))
+        except Exception:
+            prev = None
+        json.dump(cur, open(state_p, "w"))
+        if prev is not None and prev != cur:
+            arrow = f"{prev['verdict']} → {v}" if prev["verdict"] != v else v
+            msg = f"🛠️ Conso IA (ai.eduvia.dev) : {arrow} — {why}"
+            new_cd = sorted(set(cd) - set(prev.get("blocked", [])))
+            back = sorted(set(prev.get("blocked", [])) - set(cd))
+            if new_cd:
+                msg += "\n• bloqués : " + ", ".join(new_cd)
+            if back:
+                msg += "\n• de retour : " + ", ".join(back)
+            print(msg)
+        return
     if "--json" in sys.argv:
         print(json.dumps({"verdict": v, "reason": why, "checked_at": now, "accounts": accts}, ensure_ascii=False, indent=1))
     elif "--verdict" in sys.argv:
