@@ -27,6 +27,9 @@ export PATH="$HOME/.local/bin:$PATH"
 # Default editor
 export EDITOR="zed --wait"
 
+# npm global prefix (~/.npmrc prefix)
+[ -d "$HOME/.npm-global/bin" ] && export PATH="$HOME/.npm-global/bin:$PATH"
+
 # opencode
 [ -d "$HOME/.opencode/bin" ] && export PATH="$HOME/.opencode/bin:$PATH"
 eval "$(direnv hook zsh)"

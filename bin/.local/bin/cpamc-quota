@@ -1,0 +1,152 @@
+#!/usr/bin/env python3
+"""cpamc-quota — état des comptes CLIProxyAPI (ai.eduvia.dev) et budget de consommation.
+
+Lit /v0/management/auth-files (clé CPAMC_MANAGEMENT_KEY dans ~/.secrets/cpamc.env)
+et agrège les en-têtes Anthropic unified rate-limit (fenêtres 5h / 7j) par compte.
+
+Usage:
+  cpamc-quota            tableau lisible + verdict
+  cpamc-quota --json     JSON (pour agents / scripts)
+  cpamc-quota --verdict  une seule ligne: GO | SLOW | STOP + raison
+
+Verdict (sur les comptes Claude actifs, non désactivés, sans cooldown):
+  GO    au moins un compte < 70 % sur 5h ET pool 7j moyen < 80 %  -> tâches autonomes OK
+  SLOW  sinon, s'il reste au moins un compte utilisable          -> modèles légers, pas de tâches de fond lourdes
+  STOP  aucun compte utilisable (tous en cooldown/limités)        -> ne rien lancer d'autonome
+Lecture seule : ce script ne modifie jamais le proxy.
+"""
+import json, os, sys, time, urllib.request, urllib.error
+
+SECRETS = os.path.expanduser("~/.secrets/cpamc.env")
+BASE = "https://ai.eduvia.dev/v0/management/"
+STALE_S = 6 * 3600  # observation plus vieille que ça = « inconnu »
+
+
+def load_env(path):
+    env = {}
+    for line in open(path):
+        line = line.strip()
+        if line and not line.startswith("#") and "=" in line:
+            k, v = line.split("=", 1)
+            env[k] = v
+    return env
+
+
+def fetch(path, key):
+    req = urllib.request.Request(BASE + path, headers={"Authorization": "Bearer " + key})
+    with urllib.request.urlopen(req, timeout=20) as r:
+        return json.load(r)
+
+
+def fnum(x):
+    try:
+        return float(x)
+    except (TypeError, ValueError):
+        return None
+
+
+def parse_ts(s):
+    # "2026-10-09T15:38:15.456452977+02:00" / "...Z" -> epoch (tronque nanosecondes)
+    if not s:
+        return None
+    import re
+    from datetime import datetime
+    m = re.match(r"^(\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d)(?:\.\d+)?(Z|[+-]\d\d:\d\d)?$", s)
+    if not m:
+        return None
+    tz = m.group(2) or "Z"
+    return datetime.fromisoformat(m.group(1) + ("+00:00" if tz == "Z" else tz)).timestamp()
+
+
+def account_state(f, now):
+    mq = f.get("model_quotas") or {}
+    best = max(mq.items(), key=lambda kv: kv[1].get("observed_at", ""), default=None)
+    sig = best[1].get("signals", {}) if best else {}
+    g = lambda k: sig.get("Anthropic-Ratelimit-Unified-" + k)
+    obs = parse_ts(best[1].get("observed_at")) if best else None
+    reset5 = fnum(g("5h-Reset"))
+    reset7 = fnum(g("7d-Reset"))
+    u5 = fnum(g("5h-Utilization"))
+    u7 = fnum(g("7d-Utilization"))
+    # fenêtre écoulée depuis l'observation -> consommation remise à zéro
+    if u5 is not None and reset5 and now > reset5:
+        u5 = 0.0
+    if u7 is not None and reset7 and now > reset7:
+        u7 = 0.0
+    cooldowns = [c for c in (f.get("cooldowns") or [])]
+    active_cd = []
+    for c in cooldowns:
+        until = parse_ts(c.get("retry_at") or c.get("until") or c.get("expires_at"))
+        if until is None or until > now:
+            active_cd.append(c)
+    provider = f.get("provider") or f.get("type")
+    status5 = g("5h-Status")
+    usable = (not f.get("disabled")) and not active_cd and status5 not in ("rejected", "blocked")
+    return {
+        "email": f.get("email") or f.get("label"),
+        "provider": provider,
+        "disabled": bool(f.get("disabled")),
+        "failed": f.get("failed"),
+        "cooldowns": active_cd,
+        "util_5h": u5,
+        "status_5h": status5,
+        "reset_5h": reset5,
+        "util_7d": u7,
+        "reset_7d": reset7,
+        "observed_at": obs,
+        "stale": obs is None or (now - obs) > STALE_S,
+        "usable": usable,
+    }
+
+
+def verdict(accts):
+    claude = [a for a in accts if a["provider"] == "claude"]
+    usable = [a for a in claude if a["usable"]]
+    if not usable:
+        return "STOP", "aucun compte Claude utilisable (désactivé/cooldown/limité)"
+    known7 = [a["util_7d"] for a in usable if a["util_7d"] is not None]
+    pool7 = sum(known7) / len(known7) if known7 else None
+    fresh = [a for a in usable if a["util_5h"] is not None and a["util_5h"] < 0.70]
+    if fresh and (pool7 is None or pool7 < 0.80):
+        return "GO", f"{len(fresh)}/{len(claude)} comptes < 70 % sur 5h, pool 7j ~{pool7:.0%}" if pool7 is not None else f"{len(fresh)} comptes frais"
+    reason = f"{len(usable)}/{len(claude)} utilisables, pool 7j ~{pool7:.0%}" if pool7 is not None else f"{len(usable)} utilisables"
+    return "SLOW", reason
+
+
+def fmt_pct(x):
+    return "  ?  " if x is None else f"{x*100:4.0f}%"
+
+
+def fmt_t(t):
+    return "-" if not t else time.strftime("%d/%m %H:%M", time.localtime(t))
+
+
+def main():
+    env = load_env(SECRETS)
+    key = env.get("CPAMC_MANAGEMENT_KEY")
+    if not key:
+        sys.exit("CPAMC_MANAGEMENT_KEY absent de ~/.secrets/cpamc.env")
+    try:
+        data = fetch("auth-files", key)
+    except urllib.error.URLError as e:
+        print("STOP proxy injoignable: %s" % e if "--verdict" in sys.argv else json.dumps({"verdict": "STOP", "reason": str(e)}))
+        sys.exit(2)
+    now = time.time()
+    accts = [account_state(f, now) for f in data.get("files", [])]
+    v, why = verdict(accts)
+    if "--json" in sys.argv:
+        print(json.dumps({"verdict": v, "reason": why, "checked_at": now, "accounts": accts}, ensure_ascii=False, indent=1))
+    elif "--verdict" in sys.argv:
+        print(f"{v} {why}")
+    else:
+        print(f"{'compte':30} {'prov':6} {'5h':>5} {'reset 5h':>11} {'7j':>5} {'reset 7j':>11}  état")
+        for a in sorted(accts, key=lambda a: (a["provider"] != "claude", a["util_7d"] or 0)):
+            st = "désactivé" if a["disabled"] else ("cooldown" if a["cooldowns"] else ("ok" if a["usable"] else a["status_5h"] or "?"))
+            if a["stale"] and a["provider"] == "claude":
+                st += " (obs ancienne)"
+            print(f"{a['email'][:30]:30} {a['provider'][:6]:6} {fmt_pct(a['util_5h'])} {fmt_t(a['reset_5h']):>11} {fmt_pct(a['util_7d'])} {fmt_t(a['reset_7d']):>11}  {st}")
+        print(f"\nVERDICT: {v} — {why}")
+
+
+if __name__ == "__main__":
+    main()
