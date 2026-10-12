@@ -6,8 +6,9 @@ twice from the same consent:
 - WORKSPACE_MCP_CREDENTIALS_DIR/<email>.json, read by taylorwilsdon/workspace-mcp;
 - GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE (authorized_user JSON), read by `gws`
   (OpenClaw on 2serv-1 and every shell).
-Requested scopes == what the MCP requests for `--tools gmail calendar` (BASE +
-GMAIL + CALENDAR), so no agent ever re-prompts. Env comes from
+Scopes = what the MCP requests for `--tools gmail calendar` (BASE + GMAIL +
+CALENDAR) plus Drive/Docs/Sheets/Tasks/Contacts for `gws`, so no agent ever
+re-prompts. Env comes from
 ~/.secrets/google.env (sourced by auth-once.sh).
 
 Refresh token never expires ONLY if the OAuth consent screen is published
@@ -21,7 +22,8 @@ from urllib.parse import quote
 
 from google_auth_oauthlib.flow import InstalledAppFlow
 
-# BASE + GMAIL + CALENDAR (mirrors auth/scopes.py get_scopes_for_tools(['gmail','calendar']))
+# BASE + GMAIL + CALENDAR (mirrors workspace-mcp get_scopes_for_tools(['gmail','calendar']))
+# + the services OpenClaw's gws skills use.
 SCOPES = [
     "https://www.googleapis.com/auth/userinfo.email",
     "https://www.googleapis.com/auth/userinfo.profile",
@@ -32,6 +34,11 @@ SCOPES = [
     "https://www.googleapis.com/auth/gmail.modify",
     "https://www.googleapis.com/auth/gmail.labels",
     "https://www.googleapis.com/auth/gmail.settings.basic",
+    "https://www.googleapis.com/auth/drive",
+    "https://www.googleapis.com/auth/documents",
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/tasks",
+    "https://www.googleapis.com/auth/contacts",
     "https://www.googleapis.com/auth/calendar",
     "https://www.googleapis.com/auth/calendar.readonly",
     "https://www.googleapis.com/auth/calendar.events",
