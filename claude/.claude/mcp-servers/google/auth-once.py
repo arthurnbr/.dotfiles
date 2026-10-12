@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
-"""One-time Google OAuth for the Google Workspace MCP (Gmail perso).
+"""One-time Google OAuth for the Google Workspace MCP and the `gws` CLI (Gmail perso).
 
 Runs the installed-app OAuth flow (opens a browser once), then writes the token
-JSON exactly where taylorwilsdon/workspace-mcp reads it
-(WORKSPACE_MCP_CREDENTIALS_DIR/<email>.json). Requested scopes == what the server
-requests for `--tools gmail calendar` (BASE + GMAIL + CALENDAR), so no agent ever
-re-prompts. Env comes from ~/.secrets/google.env (sourced by auth-once.sh).
+twice from the same consent:
+- WORKSPACE_MCP_CREDENTIALS_DIR/<email>.json, read by taylorwilsdon/workspace-mcp;
+- GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE (authorized_user JSON), read by `gws`
+  (OpenClaw on 2serv-1 and every shell).
+Requested scopes == what the MCP requests for `--tools gmail calendar` (BASE +
+GMAIL + CALENDAR), so no agent ever re-prompts. Env comes from
+~/.secrets/google.env (sourced by auth-once.sh).
 
 Refresh token never expires ONLY if the OAuth consent screen is published
 "In production" (Testing mode => 7-day expiry = the reconnection pain).
@@ -95,7 +98,21 @@ fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
 with os.fdopen(fd, "w") as f:
     json.dump(data, f, indent=2)
 
+gws_path = os.path.expanduser(
+    os.environ.get("GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE", "~/.secrets/google/gws.json")
+)
+gws_data = {
+    "type": "authorized_user",
+    "client_id": creds.client_id,
+    "client_secret": creds.client_secret,
+    "refresh_token": creds.refresh_token,
+}
+fd = os.open(gws_path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+with os.fdopen(fd, "w") as f:
+    json.dump(gws_data, f, indent=2)
+
 print(f"OK  token ecrit: {path}")
+print(f"    token gws     : {gws_path}")
 print(f"    compte        : {acct}")
 print(f"    refresh_token : {'present' if creds.refresh_token else 'ABSENT (relance avec prompt=consent / app publiee)'}")
 if not creds.refresh_token:

@@ -14,6 +14,9 @@ export BUN_INSTALL="$HOME/.bun"
 [ -d "$BUN_INSTALL/bin" ] && export PATH="$BUN_INSTALL/bin:$PATH"
 [ -s "$BUN_INSTALL/_bun" ] && source "$BUN_INSTALL/_bun"
 
+# gws (Google Workspace CLI) — token partagé via ~/.secrets (Seafile), cf. mcp-servers/google/auth-once.sh
+[ -f "$HOME/.secrets/google/gws.json" ] && export GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE="$HOME/.secrets/google/gws.json"
+
 # fzf
 if command -v fzf &>/dev/null; then
   source <(fzf --zsh)
