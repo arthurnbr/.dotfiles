@@ -40,3 +40,6 @@ eval "$(direnv hook zsh)"
 # rbenv
 export PATH="$HOME/.rbenv/bin:$PATH"
 eval "$(rbenv init - zsh)"
+
+# AirPlay mirroring receiver (iPhone -> this PC, Wayland/Hyprland)
+alias iphone-cast='uxplay -n "Arthur-PC" -vs waylandsink'
