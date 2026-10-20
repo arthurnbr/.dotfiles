@@ -7,6 +7,7 @@ et agrège les en-têtes Anthropic unified rate-limit (fenêtres 5h / 7j) par co
 Usage:
   cpamc-quota            tableau lisible + verdict
   cpamc-quota --verdict  une seule ligne: GO | SLOW | STOP + raison
+  cpamc-quota --7j       conso 7 jours par compte (une ligne par compte)
   cpamc-quota --alert    silencieux sauf changement de verdict confirmé / proxy injoignable durablement (cron)
 
 Verdict (sur les comptes Claude actifs, non désactivés, sans cooldown):
@@ -177,7 +178,16 @@ def main():
     if "--alert" in sys.argv:
         alert(state_p, v, why, unreachable=False)
         return
-    if "--json" in sys.argv:
+    if "--7j" in sys.argv or "--7d" in sys.argv:
+        claude = [a for a in accts if a["provider"] == "claude"]
+        for a in sorted(claude, key=lambda a: (a["util_7d"] is None, -(a["util_7d"] or 0))):
+            st = "désactivé" if a["disabled"] else ("cooldown" if a["cooldowns"] else ("ok" if a["usable"] else a["status_5h"] or "?"))
+            extra = " (obs ancienne)" if a["stale"] else ""
+            print(f"{a['email'][:30]:30} 7j {fmt_pct(a['util_7d'])}  reset {fmt_t(a['reset_7d']):>11}  {st}{extra}")
+        known7 = [a["util_7d"] for a in claude if a["util_7d"] is not None and a["usable"]]
+        if known7:
+            print(f"{'pool 7j (moyenne utilisables)':30} 7j {fmt_pct(sum(known7)/len(known7))}")
+    elif "--json" in sys.argv:
         print(json.dumps({"verdict": v, "reason": why, "checked_at": now, "accounts": accts}, ensure_ascii=False, indent=1))
     elif "--verdict" in sys.argv:
         print(f"{v} {why}")
