@@ -7,7 +7,7 @@ et agrège les en-têtes Anthropic unified rate-limit (fenêtres 5h / 7j) par co
 Usage:
   cpamc-quota            tableau lisible + verdict
   cpamc-quota --verdict  une seule ligne: GO | SLOW | STOP + raison
-  cpamc-quota --alert    silencieux sauf changement de verdict / comptes bloqués (pour cron)
+  cpamc-quota --alert    silencieux sauf changement de verdict confirmé / proxy injoignable durablement (cron)
 
 Verdict (sur les comptes Claude actifs, non désactivés, sans cooldown):
   GO    au moins un compte < 70 % sur 5h ET pool 7j moyen < 80 %  -> tâches autonomes OK
@@ -121,43 +121,61 @@ def fmt_t(t):
     return "-" if not t else time.strftime("%d/%m %H:%M", time.localtime(t))
 
 
+def load_alert_state(path):
+    try:
+        return json.load(open(path))
+    except Exception:
+        return {}
+
+
+def alert(state_p, v, why, unreachable):
+    """Une ligne seulement sur changement de verdict confirmé (2 relevés) ou panne > 3 relevés.
+    Les allers-retours de comptes individuels ne notifient pas (visibles dans le récap)."""
+    os.makedirs(os.path.dirname(state_p), exist_ok=True)
+    st = load_alert_state(state_p)
+    msg = None
+    if unreachable:
+        st["fails"] = st.get("fails", 0) + 1
+        if st["fails"] == 3:
+            msg = f"⚠️ Proxy IA injoignable depuis ~1h30 ({why})"
+    else:
+        if st.get("fails", 0) >= 3:
+            msg = f"✅ Proxy IA de retour — {v}"
+        st["fails"] = 0
+        if v == st.get("verdict"):
+            st.pop("pending", None)
+        elif "verdict" not in st:
+            st["verdict"] = v
+        elif st.get("pending") == v:
+            msg = f"🛠️ Conso IA : {st['verdict']} → {v} — {why}"
+            st["verdict"] = v
+            st.pop("pending", None)
+        else:
+            st["pending"] = v
+    json.dump(st, open(state_p, "w"))
+    if msg:
+        print(msg)
+
+
 def main():
     env = load_env(SECRETS)
     key = env.get("CPAMC_MANAGEMENT_KEY")
     if not key:
         sys.exit("CPAMC_MANAGEMENT_KEY absent de ~/.secrets/cpamc.env")
+    state_p = os.path.expanduser("~/.local/state/cpamc-quota.json")
     try:
         data = fetch("auth-files", key)
     except urllib.error.URLError as e:
         if "--alert" in sys.argv:
-            print(f"⚠️ ai.eduvia.dev injoignable (management API) : {e}")
-        else:
-            print("STOP proxy injoignable: %s" % e if "--verdict" in sys.argv else json.dumps({"verdict": "STOP", "reason": str(e)}))
+            alert(state_p, None, str(e.reason), unreachable=True)
+            return
+        print("STOP proxy injoignable: %s" % e if "--verdict" in sys.argv else json.dumps({"verdict": "STOP", "reason": str(e)}))
         sys.exit(2)
     now = time.time()
     accts = [account_state(f, now) for f in data.get("files", [])]
     v, why = verdict(accts)
     if "--alert" in sys.argv:
-        # silencieux tant que verdict + comptes en cooldown inchangés ; sinon 1 message court
-        state_p = os.path.expanduser("~/.local/state/cpamc-quota.json")
-        os.makedirs(os.path.dirname(state_p), exist_ok=True)
-        cd = sorted(a["email"] for a in accts if a["cooldowns"] or a["disabled"])
-        cur = {"verdict": v, "blocked": cd}
-        try:
-            prev = json.load(open(state_p))
-        except Exception:
-            prev = None
-        json.dump(cur, open(state_p, "w"))
-        if prev is not None and prev != cur:
-            arrow = f"{prev['verdict']} → {v}" if prev["verdict"] != v else v
-            msg = f"🛠️ Conso IA (ai.eduvia.dev) : {arrow} — {why}"
-            new_cd = sorted(set(cd) - set(prev.get("blocked", [])))
-            back = sorted(set(prev.get("blocked", [])) - set(cd))
-            if new_cd:
-                msg += "\n• bloqués : " + ", ".join(new_cd)
-            if back:
-                msg += "\n• de retour : " + ", ".join(back)
-            print(msg)
+        alert(state_p, v, why, unreachable=False)
         return
     if "--json" in sys.argv:
         print(json.dumps({"verdict": v, "reason": why, "checked_at": now, "accounts": accts}, ensure_ascii=False, indent=1))
