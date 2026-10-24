@@ -43,3 +43,5 @@ eval "$(rbenv init - zsh)"
 
 # AirPlay mirroring receiver (iPhone -> this PC, Wayland/Hyprland)
 alias iphone-cast='uxplay -n "Arthur-PC" -vs waylandsink'
+# Plane (skill /todo) — token lives in ~/.secrets/plane.env, never in git
+[ -r ~/.secrets/plane.env ] && export PLANE_API_KEY="$(sed -n 's/^PLANE_TOKEN=//p' ~/.secrets/plane.env | tr -d '"')"

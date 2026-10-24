@@ -45,3 +45,9 @@ map("n", "<leader>;", "@:", { desc = "Repeat last : command" })
 map("n", "<leader>tt", function()
   Snacks.terminal()
 end, { desc = "Toggle terminal (root)" })
+
+-- Insert a timestamp "[dd/mm/yy hh:mm] :" at the cursor.
+map({ "n", "i" }, "<leader>id", function()
+  local stamp = os.date("[%d/%m/%y %H:%M] :")
+  vim.api.nvim_put({ stamp }, "c", true, true)
+end, { desc = "Insert timestamp" })

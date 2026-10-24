@@ -1,3 +1,4 @@
+require("config.remote_clipboard").setup()
 -- Options are loaded before lazy.nvim startup. LazyVim defaults stay;
 -- we only override what we want different.
 

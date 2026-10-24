@@ -37,3 +37,6 @@ bin/.local/bin/pyftmerge
 # is tracked; ignore everything else Codex generates.
 claude/.codex/*
 !claude/.codex/AGENTS.md
+
+# Python bytecode
+__pycache__/

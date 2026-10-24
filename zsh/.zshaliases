@@ -13,17 +13,33 @@ alias la='eza --icons -a'
 alias l='eza --icons'
 alias llr='eza --icons -l --tree --level=2'
 alias cat='bat --paging=never'
+alias ee="eduvia-env"
 
 alias ism="idea . & sm"
 
+# $ FILE|URL…: open on this desktop, or, in a `2o ssh` shell, on the desktop
+# it came from. Falls back to open/xdg-open where 2o is not installed.
 "$"(){
-    if [ "$(uname -s)" = Darwin ]; then
-        open $@
+    if (( $+commands[2o] )); then
+        local t
+        for t in "$@"; do 2o open "$t" || return; done
+    elif [ "$(uname -s)" = Darwin ]; then
+        open "$@"
     else
-        xdg-open $@
+        xdg-open "$@"
     fi
 }
 alias x='$'
+
+# ssh through 2o (tunnel back to this desktop); `command ssh` for plain ssh,
+# e.g. modes 2o cannot wrap (-N -f -W -O…).
+"ssh"(){
+    if (( $+commands[2o] )); then
+        2o ssh "$@"
+    else
+        command ssh "$@"
+    fi
+}
 
 "sm"(){
     if [ "$(uname -s)" = Darwin ]; then
