@@ -85,6 +85,10 @@ alias wake-serv-2="wakeonlan 74:56:3c:37:95:15"
   fi
   return $ret
 }
+alias eel="eduvia-env list"
+alias eed="eduvia-env destroy"
+alias eec="eduvia-env create"
+alias ees="eduvia-env start"
 
 "batt"(){
     local cap=$(cat /sys/class/power_supply/BAT1/capacity 2>/dev/null)
