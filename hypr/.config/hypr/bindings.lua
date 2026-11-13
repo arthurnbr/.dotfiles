@@ -33,3 +33,10 @@ o.window("org\\.omarchy\\.floatterm", { float = true })
 o.window("org\\.omarchy\\.floatterm", { workspace = "special:floatterm" })
 o.window("org\\.omarchy\\.floatterm", { size = { "(monitor_w*0.6)", "(monitor_h*0.6)" } })
 o.window("org\\.omarchy\\.floatterm", { center = true })
+
+-- Dictation keys from before Alt + Space and Right Alt became the defaults.
+-- Remove these lines to give the keys back to applications.
+if o.dictation_installed and o.dictation_installed() then
+  o.bind("SUPER + CTRL + X", "Toggle dictation", "omarchy-dictation toggle")
+  o.bind_hold("F9", "Start dictation (push-to-talk)", "omarchy-dictation start", "Stop dictation (push-to-talk)", "omarchy-dictation stop")
+end
