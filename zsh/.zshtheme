@@ -4,25 +4,25 @@ COMPLETION_WAITING_DOTS="true"
 HIST_STAMPS="dd/mm/yyyy"
 VIRTUAL_ENV_DISABLE_PROMPT=1
 
-# ──────────────────────────────────────────
-# Prompt
-# ──────────────────────────────────────────
+# ------------------------------------------
+# Prompt (ASCII only: no Nerd Font / Powerline glyphs)
+# ------------------------------------------
 setopt prompt_subst
 
 precmd() {
   local host_segment=""
   if [[ -n "$SSH_CONNECTION" ]]; then
-    host_segment="%F{#1a1b26}%K{#bb9af7}%B  %m %b%f%k%F{#bb9af7}%K{#7dcfff}%f"
+    host_segment="%F{#1a1b26}%K{#bb9af7}%B %m %b%k%f "
   fi
-  local dir_segment="${host_segment}%F{#1a1b26}%K{#7dcfff}%B  %(4~.…/%3~.%~) %b%f%k%F{#7dcfff}%f"
+  local dir_segment="${host_segment}%F{#1a1b26}%K{#7dcfff}%B %(4~.../%3~.%~) %b%k%f"
 
   local venv_segment=""
   if [[ -n "$VIRTUAL_ENV" ]]; then
-    venv_segment=" %F{238}%K{238}%f%F{yellow} $(basename $VIRTUAL_ENV) %k%F{238}%f"
+    venv_segment=" %F{yellow}($(basename $VIRTUAL_ENV))%f"
   fi
 
-  PROMPT=$'\n\n'"${dir_segment}${venv_segment}"$'\n'"%F{magenta}%B❯%b%f "
-  RPROMPT="%(?..%F{red}%B✘ %?%b%f)"
+  PROMPT=$'\n\n'"${dir_segment}${venv_segment}"$'\n'"%F{magenta}%B>%b%f "
+  RPROMPT="%(?..%F{red}%Bx %?%b%f)"
 }
 
 preexec() {}
