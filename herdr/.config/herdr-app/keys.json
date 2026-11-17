@@ -30,8 +30,8 @@
     "ctrl-a shift-w": "space.rename",
     "ctrl-a shift-d": "space.close",
     "ctrl-a b": "layout.toggle:sidebar",
-    "ctrl-j": "space.prev",
-    "ctrl-k": "space.next",
+    "ctrl-j": "space.next",
+    "ctrl-k": "space.prev",
     "ctrl-p": "app.palette",
     "ctrl-space": "mod.open:picker",
     "ctrl-a ?": "app.help"
