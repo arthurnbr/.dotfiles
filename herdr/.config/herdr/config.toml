@@ -4,6 +4,11 @@ onboarding = false
 # Aligné sur le préfixe tmux (C-a) pour une mémoire musculaire partagée.
 prefix = "ctrl+a"
 
+# Navigation entre spaces (workspaces) : ctrl+j précédent, ctrl+k suivant.
+# On garde les défauts herdr (prefix+shift+p/n, alt+up/down).
+previous_workspace = ["prefix+shift+p", "alt+up", "ctrl+j"]
+next_workspace = ["prefix+shift+n", "alt+down", "ctrl+k"]
+
 [experimental]
 pane_history = false
 
