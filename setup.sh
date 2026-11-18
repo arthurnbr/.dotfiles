@@ -50,6 +50,9 @@ fi
 # ──────────────────────────────────────────
 echo "==> Stowing dotfiles..."
 cd "$DOTFILES_DIR"
+# herdr-app writes its state (shared.json, view.json, data/) next to its config: real folders,
+# so stow links only the files and mods/<name>/, never the whole herdr-app folder into the repo.
+mkdir -p "$HOME/.config/herdr-app/mods" "$HOME/.config/herdr-app/layouts"
 for pkg in "${PACKAGES[@]}"; do
   echo "  - $pkg"
   stow -v --target="$HOME" --restow "$pkg"

@@ -23,6 +23,10 @@ herdr/.config/herdr/*.log
 herdr/.config/herdr/session.json
 herdr/.config/herdr/release-notes.json
 
+# herdr-app writes these into every mod folder on start (editor types) — regenerated
+herdr/.config/herdr-app/mods/*/gpui-kit.d.ts
+herdr/.config/herdr-app/mods/*/jsconfig.json
+
 # bin: only hand-written scripts belong here — exclude compiled binaries
 # (herdr ~13MB, omp ~157MB) and pip-installed fonttools entry-point wrappers.
 bin/.local/bin/herdr

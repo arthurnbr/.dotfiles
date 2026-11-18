@@ -12,6 +12,7 @@ Personal dotfiles managed with [GNU Stow](https://www.gnu.org/software/stow/).
 | `zed` | Zed editor settings, keymaps, tasks | all |
 | `git` | Git config + global ignore | all |
 | `starship` | Starship prompt config | all |
+| `herdr` | herdr (TUI) config + herdr-app: keys, settings, the `eduvia` layout and the `eduvia-servers` mod (Serveurs Eduvia: start/stop/restart front, back, Histoire + logs, local or remote). After stow: `~/.config/herdr-app/mods/eduvia-servers/install.sh` shows the layout. | all |
 | `claude` | Global `CLAUDE.md` + Codex `AGENTS.md` + OMP/Claude skills (`seafile`, `dolibarr`, `vikunja`, `2brain`, …) + local MCP servers (`dolibarr`, `vikunja`) | all |
 | `karabiner` | Karabiner-Elements key remappings | macOS |
 | `hypr` | Hyprland personal configs — Lua overrides (bindings, input, look'n'feel) + `hyprsunset.conf` | Linux (Omarchy) |
