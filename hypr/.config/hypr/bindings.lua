@@ -7,6 +7,10 @@
 -- app instead, e.g. Ghostty's fuzzy switcher.
 hl.unbind("SUPER + P")
 
+-- Open Ghostty directly on SUPER + RETURN (Omarchy default: xdg-terminal-exec).
+hl.unbind("SUPER + RETURN")
+o.bind("SUPER + RETURN", "Terminal", "ghostty")
+
 -- macOS-style Cmd + Q to close the active window (Omarchy keeps SUPER + W too).
 o.bind("SUPER + Q", "Close window", hl.dsp.window.close())
 
