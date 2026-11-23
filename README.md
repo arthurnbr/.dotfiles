@@ -14,6 +14,7 @@ Personal dotfiles managed with [GNU Stow](https://www.gnu.org/software/stow/).
 | `starship` | Starship prompt config | all |
 | `herdr` | herdr (TUI) config + herdr-app keys & settings. Les mods herdr-app d'Eduvia (`eduvia-servers`, …) vivent dans le repo eduvia : `tools/herdr/install.sh`. | all |
 | `claude` | Global `CLAUDE.md` + Codex `AGENTS.md` + OMP/Claude skills (`seafile`, `dolibarr`, `vikunja`, `2brain`, …) + local MCP servers (`dolibarr`, `vikunja`) | all |
+| `omp` | OMP `models.yml` (custom providers, e.g. `eduvia`). API keys are read at runtime from `~/.secrets/*.env`, never committed. | all |
 | `karabiner` | Karabiner-Elements key remappings | macOS |
 | `hypr` | Hyprland personal configs — Lua overrides (bindings, input, look'n'feel) + `hyprsunset.conf` | Linux (Omarchy) |
 | `keyd` | System-wide key remapping (Alt+HJKL → arrows). Not stowed — `setup-arch.sh` deploys `keyd/default.conf` to `/etc/keyd/` and enables the daemon. | Linux |

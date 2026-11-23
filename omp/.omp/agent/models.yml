@@ -1,0 +1,8 @@
+providers:
+  eduvia:
+    baseUrl: https://ai.eduvia.dev
+    api: anthropic-messages
+    # Key lives in ~/.secrets/eduvia.env (Seafile secrets lib), never in git.
+    apiKey: "!sed -n 's/^EDUVIA_API_KEY=//p' ~/.secrets/eduvia.env"
+    discovery:
+      type: openai-models-list
