@@ -124,6 +124,10 @@ fi
 echo "==> Linking skills for OMP..."
 mkdir -p "$HOME/.omp/agent"
 ln -sfn "$HOME/.claude/skills" "$HOME/.omp/agent/skills"
+# gdp skill (GDP Eduvia) lives in the eduplanner repo; link it from whichever Eduvia checkout exists.
+for _ep in "$HOME/Documents/eduvia/eduplanner" "$HOME/eduvia/eduplanner"; do
+  if [ -d "$_ep/docs/agents/gdp" ]; then ln -sfn "$_ep/docs/agents/gdp" "$HOME/.claude/skills/gdp"; break; fi
+done
 
 echo "==> Registering local MCP servers for OMP..."
 OMP_MCP="$HOME/.omp/agent/mcp.json"
