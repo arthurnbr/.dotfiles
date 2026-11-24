@@ -50,13 +50,18 @@ session** avant de conclure.
   `~/2brain-scratch/<slug>/` — **local, non synchronisé, purgeable**. Les
   rapports/temporaires vont ici **plutôt que dans les repos de code**.
 
-## Suivi des tâches — toujours via Vikunja
+## Suivi des tâches — Eduvia ≠ perso
 
-Méthodo de travail d'Arthur : **tout travail suivi passe par Vikunja** (serveur
-MCP `vikunja`, `todo.nobrega.fr`). Réflexe : lire l'état des tâches du projet,
-passer la tâche `To-Do → Doing` (bucket kanban) au démarrage, `done` à la fin,
-commenter l'avancement (`vikunja_task_comment_add`) **et** loguer au journal
-2brain.
+Deux systèmes, **ne jamais les mélanger** (`START.md` §3) :
+- **Eduvia (pro)** → **GDP Eduvia = eduplanner** (`planner.eduvia.dev`, tâches
+  `EDU-n`), outils `gdp_*` (MCP `gdp`) + skill `gdp`, couche
+  `projects/eduvia/gdp/`. **Jamais Vikunja** (aucun projet Eduvia n'y vit).
+  Plane est remplacé par eduplanner : ne plus l'utiliser.
+- **Tout le reste** (perso, NS. CAPITAL, 2fleet, dotfiles…) → **Vikunja**
+  (MCP `vikunja`, `todo.nobrega.fr`). Réflexe : lire l'état des tâches du
+  projet, passer la tâche `To-Do → Doing` (bucket kanban) au démarrage, `done`
+  à la fin, commenter l'avancement (`vikunja_task_comment_add`) **et** loguer au
+  journal 2brain.
 
 **« Fais la tâche N de ce projet » :** N = l'`index` de la tâche (le #N affiché
 dans l'UI), **PAS son `id` global**. Résolution : slug → projet Vikunja (colonne
@@ -68,14 +73,17 @@ lui-même ses buckets (`Draft→…→Done`) et ses bots (`bot-fleet-*`) ; ne pa
 piloter ses buckets à la main, mais on peut y créer/assigner des tâches aux bots
 (`vikunja_task_assign`). Détails : `START.md` §3 et `projects/2fleet/facts.md`.
 
-## Déploiements & infra — toujours via Coolify
+## Déploiements & infra — Coolify (perso) / process du repo (Eduvia)
 
-Méthodo d'Arthur : **tout ce qui touche au déploiement/infra passe au maximum
-par Coolify** (`cool.nobrega.fr`, PaaS auto-hébergé, hub central ; secret
+Perso : **tout ce qui touche au déploiement/infra passe au maximum par Coolify**
+(`cool.nobrega.fr`, PaaS auto-hébergé, hub central ; secret
 `~/.secrets/coolify.env`, API `/api/v1/*` + `Bearer $COOLIFY_ACCESS_TOKEN`).
 Utilise au **maximum les features natives de Coolify** (apps, services, DB,
 déploiements, env, rollbacks, logs) ; pas de script de déploiement custom ni de
 `docker run`/compose à la main quand Coolify sait le faire.
+
+Eduvia : process du repo concerné (tags `r/prod/*`, Coolify Eduvia
+`coolify.eduvia.dev`, MCP `coolify` du repo eduvia) — jamais le Coolify perso.
 
 **⚠️ Déployer = action à confirmer, jamais autonome.** Lire l'état (apps,
 projets, serveurs, logs) est libre. Mais **avant tout deploy/restart/stop/

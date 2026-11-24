@@ -1,4 +1,4 @@
-# Instructions globales (Codex)
+# Instructions globales (Codex, OMP)
 
 ## Mémoire persistante (2brain)
 
@@ -23,18 +23,24 @@ exactes dans `START.md`.
 `projects/<slug>/reports/`) ou `~/2brain-scratch/<slug>/` (jetable, non
 synchronisé) — **jamais en vrac dans un repo de code**.
 
-**Suivi des tâches — toujours via Vikunja** (serveur MCP `vikunja`) : tout
-travail suivi passe par Vikunja ; lis l'état, `To-Do→Doing→done`, commente +
-logue au journal 2brain. « Tâche N d'un projet » = l'`index` (#N affiché), pas
-l'`id` global — projet résolu via `~/2brain/projects/INDEX.md`. Détails +
-cas 2fleet : `START.md` §3.
+**Suivi des tâches — deux systèmes, ne jamais les mélanger** (détails :
+`START.md` §3) :
+- **Eduvia (pro)** : dossier `~/Documents/eduvia*` (repo, worktrees
+  `eduvia-envs`, `eduplanner`, `herdr-eduvia`) ou sujet Eduvia (tâche `EDU-n`,
+  créneau, CR, PR Eduvia) → **GDP Eduvia = eduplanner** (`planner.eduvia.dev`),
+  outils `gdp_*` (MCP `gdp`) + skill `gdp`. **Jamais Vikunja.** Plane est
+  remplacé par eduplanner : ne plus l'utiliser.
+- **Tout le reste (perso, NS. CAPITAL, 2fleet, dotfiles…)** → **Vikunja**
+  (`todo.nobrega.fr`, MCP `vikunja`) : lis l'état, `To-Do→Doing→done`,
+  commente + logue au journal 2brain. « Tâche N d'un projet » = l'`index` (#N
+  affiché), pas l'`id` global — projet résolu via `~/2brain/projects/INDEX.md`.
 
-**Déploiements & infra — toujours via Coolify** (`cool.nobrega.fr`, secret
-`~/.secrets/coolify.env`) : utilise au **maximum les features natives de
-Coolify** ; pas de déploiement manuel/script custom quand Coolify sait le faire.
-Lire l'état : libre. **Déployer/redémarrer/arrêter = demande TOUJOURS à Arthur
-quel projet sur quelle machine avant d'agir — jamais autonome.** Détails :
-`START.md` §4.
+**Déploiements & infra** (détails : `START.md` §4) : perso → **Coolify
+`cool.nobrega.fr`** (secret `~/.secrets/coolify.env`), au maximum avec ses
+features natives. Eduvia → process du repo concerné (tags `r/prod/*`, Coolify
+Eduvia `coolify.eduvia.dev`), jamais le Coolify perso. Lire l'état : libre.
+**Déployer/redémarrer/arrêter = feu vert explicite d'Arthur (quel projet, quelle
+machine) — jamais autonome.**
 
 **Livrer un document** : quand tu transmets un fichier à Arthur, donne **le
 chemin local** (s'il est sur l'hôte) **et** un **lien de téléchargement Seafile**
@@ -50,5 +56,6 @@ Si `~/2brain/START.md` est absent (machine pas amorcée), relancer `setup*.sh`
 ## Dotfiles
 
 Ce fichier est géré par GNU Stow depuis `~/.dotfiles` (package `claude`,
-source : `~/.dotfiles/claude/.codex/AGENTS.md`). Après modification, commit +
-push dans `~/.dotfiles` pour synchroniser les autres machines.
+source : `~/.dotfiles/claude/.codex/AGENTS.md`) ; OMP le lit via
+`~/.omp/agent/AGENTS.md` (symlink du package `omp`). Après modification,
+commit + push dans `~/.dotfiles` pour synchroniser les autres machines.
