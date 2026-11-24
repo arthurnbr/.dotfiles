@@ -17,7 +17,12 @@ echo "==> Dotfiles setup (Debian) from $DOTFILES_DIR"
 #    CORE must succeed; EXTRAS are best-effort (name/availability varies by release).
 # ──────────────────────────────────────────
 CORE_PKGS=(stow zsh tmux git curl ca-certificates unzip jq neovim)
-EXTRA_PKGS=(zsh-syntax-highlighting zsh-autosuggestions eza bat fzf zoxide ripgrep fd-find btop inotify-tools direnv rbenv)
+EXTRA_PKGS=(zsh-syntax-highlighting zsh-autosuggestions eza bat fzf zoxide ripgrep fd-find btop inotify-tools direnv rbenv seafile-cli)
+
+# remote-eduvia container (Eduvia dev box): the platform owns ~/.omp/agent/models.yml (per-dev AI key,
+# rewritten by `remote-eduvia-admin ai-sync`) and the shell env (/etc/profile.d/remote-eduvia.sh).
+REMOTE_EDUVIA=false
+[ -d /etc/remote-eduvia ] && REMOTE_EDUVIA=true
 
 echo "==> Installing apt packages (core)..."
 sudo apt-get update -qq
@@ -80,11 +85,13 @@ fi
 
 # ──────────────────────────────────────────
 # 5. Stow packages (headless subset)
-#    Free the ~/.zshrc slot if a non-symlink template snuck in.
+#    Free the ~/.zshrc / ~/.gitconfig slots if non-symlink templates snuck in.
 # ──────────────────────────────────────────
-if [ -f "$HOME/.zshrc" ] && [ ! -L "$HOME/.zshrc" ]; then
-  mv "$HOME/.zshrc" "$HOME/.zshrc.pre-stow.bak"
-fi
+for f in .zshrc .gitconfig; do
+  if [ -f "$HOME/$f" ] && [ ! -L "$HOME/$f" ]; then
+    mv "$HOME/$f" "$HOME/$f.pre-stow.bak"
+  fi
+done
 echo "==> Stowing dotfiles..."
 cd "$DOTFILES_DIR"
 # herdr-app writes its state (shared.json, view.json, data/) next to its config: real folders,
@@ -92,8 +99,19 @@ cd "$DOTFILES_DIR"
 mkdir -p "$HOME/.config/herdr-app/mods" "$HOME/.config/herdr-app/layouts"
 for pkg in "${PACKAGES[@]}"; do
   echo "  - $pkg"
-  stow -v --target="$HOME" --restow "$pkg"
+  stow_opts=()
+  if [ "$pkg" = omp ] && $REMOTE_EDUVIA; then stow_opts=(--ignore='models\.yml'); fi
+  stow -v --target="$HOME" --restow "${stow_opts[@]}" "$pkg"
 done
+
+if $REMOTE_EDUVIA; then
+  echo "==> remote-eduvia container: platform env + Eduvia git identity..."
+  cat >"$HOME/.zshrc.local" <<'EOF'
+# remote-eduvia: env owned by the platform (PATH, BROWSER=open, EDITOR, NODE_OPTIONS, restore.env)
+[ -r /etc/profile.d/remote-eduvia.sh ] && . /etc/profile.d/remote-eduvia.sh
+EOF
+  [ -d "$HOME/eduvia/.git" ] && git -C "$HOME/eduvia" config user.email arthur@eduvia.app
+fi
 
 # ──────────────────────────────────────────
 # 5b. Skills (OMP) + Seafile drive (secrets lib only; content on demand)
@@ -118,6 +136,13 @@ if command -v jq >/dev/null 2>&1; then
          '.mcpServers[$name] = {type:"stdio", command:"node", args:[$s]}' \
          "$OMP_MCP" >"$tmp"; then mv "$tmp" "$OMP_MCP"; else rm -f "$tmp"; fi
   done
+  # Remote MCP servers: auth read at runtime from ~/.secrets (no secret lands in mcp.json).
+  tmp="$(mktemp)"
+  if jq '.mcpServers.gdp = {type:"http", url:"https://planner.eduvia.dev/api/mcp",
+           headers:{Authorization:"!printf '\''Bearer %s'\'' \"$(sed -n '\''s/^EDUVIA_AGENT_TOKEN=//p'\'' \"$HOME/.secrets/eduplanner.env\")\""}}
+         | .mcpServers.cloudinary = {type:"http", url:"https://asset-management.mcp.cloudinary.com/mcp",
+           headers:{"cloudinary-url":"!sed -n '\''s/^CLOUDINARY_URL=//p'\'' \"$HOME/.secrets/cloudinary.env\""}}' \
+       "$OMP_MCP" >"$tmp"; then mv "$tmp" "$OMP_MCP"; else rm -f "$tmp"; fi
 else
   echo "   (jq absent — add servers by hand, cf. ~/.claude/mcp-servers/*/mcp.example.json)"
 fi
@@ -193,6 +218,28 @@ if [ -d "$SEAFILE_2BRAIN_DIR" ]; then
   else
     echo "  ! ~/2brain is a real dir; move its files into the '2brain' lib, then symlink it." >&2
   fi
+fi
+
+# Keep the Seafile daemon running across reboots (user unit; needs lingering for headless boxes).
+if [ -d "$HOME/.ccnet" ] && command -v seaf-cli >/dev/null 2>&1 && systemctl --user show-environment >/dev/null 2>&1; then
+  mkdir -p "$HOME/.config/systemd/user"
+  cat >"$HOME/.config/systemd/user/seafile.service" <<'EOF'
+[Unit]
+Description=Seafile sync daemon (secrets, 2brain)
+After=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/bin/seaf-cli start
+ExecStop=/usr/bin/seaf-cli stop
+
+[Install]
+WantedBy=default.target
+EOF
+  systemctl --user daemon-reload
+  systemctl --user enable seafile.service >/dev/null 2>&1 || true
+  sudo loginctl enable-linger "$USER" >/dev/null 2>&1 || true
 fi
 mkdir -p "$HOME/2brain-scratch"   # local, jamais synchronisé (travail jetable des agents)
 

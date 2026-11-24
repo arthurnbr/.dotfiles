@@ -25,8 +25,8 @@ synchronisé) — **jamais en vrac dans un repo de code**.
 
 **Suivi des tâches — deux systèmes, ne jamais les mélanger** (détails :
 `START.md` §3) :
-- **Eduvia (pro)** : dossier `~/Documents/eduvia*` (repo, worktrees
-  `eduvia-envs`, `eduplanner`, `herdr-eduvia`) ou sujet Eduvia (tâche `EDU-n`,
+- **Eduvia (pro)** : dossier `~/Documents/eduvia*` ou `~/eduvia*` (conteneur
+  remote-eduvia ; repo, worktrees `eduvia-envs`, `eduplanner`, `herdr-eduvia`) ou sujet Eduvia (tâche `EDU-n`,
   créneau, CR, PR Eduvia) → **GDP Eduvia = eduplanner** (`planner.eduvia.dev`),
   outils `gdp_*` (MCP `gdp`) + skill `gdp`. **Jamais Vikunja.** Plane est
   remplacé par eduplanner : ne plus l'utiliser.

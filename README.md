@@ -36,6 +36,13 @@ chmod +x setup.sh setup-arch.sh setup-debian.sh
 ./setup-debian.sh
 ```
 
+On a **remote-eduvia container** (Eduvia dev box, detected via `/etc/remote-eduvia`),
+`setup-debian.sh` leaves the platform-owned pieces alone: `~/.omp/agent/models.yml` (per-dev
+AI key, rewritten by `remote-eduvia-admin ai-sync`) is not stowed, and `~/.zshrc.local`
+sources `/etc/profile.d/remote-eduvia.sh` (PATH, `BROWSER=open`, `NODE_OPTIONS`…).
+Agent SSH access from Arthur's machines: `ssh remote-arthur` (key in the container's
+`authorized_keys`, jump via `secondary`).
+
 ## Skills (OMP) & Seafile drive
 
 Custom OMP/Claude skills (`seafile`, `dolibarr`, …) live in the `claude` package at
