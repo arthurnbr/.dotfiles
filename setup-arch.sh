@@ -67,6 +67,12 @@ PACMAN_PKGS=(
 echo "==> Installing packages..."
 pkg_install "${PACMAN_PKGS[@]}"
 
+# AUR GUI apps
+AUR_PKGS=(
+  insomnia-bin   # REST/GraphQL client (offline Scratch Pad, no account needed)
+)
+aur_install "${AUR_PKGS[@]}" || echo "  ! AUR install failed for: ${AUR_PKGS[*]}" >&2
+
 # ──────────────────────────────────────────
 # 2. Install Oh My Zsh if missing
 # ──────────────────────────────────────────
@@ -255,6 +261,83 @@ sudo keyd reload 2>/dev/null || true
 if [ "$SHELL" != "$(command -v zsh)" ]; then
   echo "==> Setting zsh as default shell (you'll be prompted for password)..."
   chsh -s "$(command -v zsh)"
+fi
+
+# ──────────────────────────────────────────
+# 9. Omdrop — AirDrop for Omarchy (PCs with non-Apple Wi-Fi)
+#    Needs a radio backend giving an `awdl0` interface. On a PC that is
+#    omdrop-owl (software AWDL via OWL); on an Apple Silicon Mac it is the
+#    brcmfmac driver, which the plugin installs itself — so we skip the OWL
+#    backend there. OWL only runs a validated profile for cards in its table;
+#    cards it hasn't tested (e.g. Realtek RTL8822CE / rtw88) need an explicit
+#    opt-in via /etc/omdrop/allow-untested, which we set when the detected
+#    driver has no packaged profile. Install OWL BEFORE the plugin.
+# ──────────────────────────────────────────
+OMDROP_PLUGIN_URL="https://github.com/netmojo-systems/omdrop-plugin.git"
+# Drivers with a validated omdrop-owl profile (shared or exclusive mode works).
+OMDROP_TESTED_DRIVERS="iwlwifi mt7925e rtw88_8822be rtw89_8852ae rtw89_8852ce"
+
+WIFI_IFACE="$(ls /sys/class/net 2>/dev/null | while read -r i; do [ -d "/sys/class/net/$i/wireless" ] && echo "$i" && break; done)"
+IS_APPLE_SILICON=0
+grep -qi 'Apple' /proc/device-tree/model 2>/dev/null && IS_APPLE_SILICON=1
+
+if [ "$IS_APPLE_SILICON" = 1 ]; then
+  echo "==> Omdrop: Apple Silicon Mac — the plugin installs its own brcmfmac backend on first use; skipping omdrop-owl."
+  aur_install omdrop-plugin 2>/dev/null || omarchy plugin add "$OMDROP_PLUGIN_URL" 2>/dev/null || true
+elif [ -z "$WIFI_IFACE" ]; then
+  echo "==> Omdrop: no Wi-Fi interface detected — skipping (needs AWDL-capable Wi-Fi)."
+elif [ "$IS_OMARCHY" != 1 ]; then
+  echo "==> Omdrop: Omarchy not detected — the bar plugin is Omarchy-only; skipping."
+else
+  WIFI_DRIVER="$(basename "$(readlink -f "/sys/class/net/$WIFI_IFACE/device/driver" 2>/dev/null)" 2>/dev/null)"
+  echo "==> Omdrop: Wi-Fi $WIFI_IFACE driver '$WIFI_DRIVER' — installing omdrop-owl backend..."
+  aur_install omdrop-owl || echo "==> Omdrop: omdrop-owl install failed — skipping plugin." 
+  if command -v omdrop-discoverable >/dev/null 2>&1 || pacman -Qq omdrop-owl >/dev/null 2>&1; then
+    # Opt in to untested profile when this driver isn't in OWL's validated table.
+    case " $OMDROP_TESTED_DRIVERS " in
+      *" $WIFI_DRIVER "*) : ;;  # validated — no opt-in needed
+      *)
+        echo "==> Omdrop: driver '$WIFI_DRIVER' is untested by omdrop-owl — enabling /etc/omdrop/allow-untested (may fail to discover, or drop Wi-Fi while visible)."
+        sudo mkdir -p /etc/omdrop
+        echo 1 | sudo tee /etc/omdrop/allow-untested >/dev/null
+        # The fallback "*" profile is shared mode, which needs the AP on
+        # channel 6/44/149 and a connected Wi-Fi passing traffic — impossible
+        # on managed networks (eduroam: channel 52). The RTL8822CE shares the
+        # rtw88 driver and generation of the validated RTL8822BE, which works
+        # in EXCLUSIVE mode, so pin that here (Wi-Fi drops during the window).
+        if [ "$WIFI_DRIVER" = "rtw88_8822ce" ] && [ ! -f /etc/omdrop/owl-profiles ]; then
+          echo "==> Omdrop: pinning RTL8822CE to exclusive mode (/etc/omdrop/owl-profiles)."
+          sudo tee /etc/omdrop/owl-profiles >/dev/null <<'OWLPROF'
+# driver      status    mode       mon_mac  reconnect  mt76_pm  notes
+rtw88_8822ce  untested  exclusive  station  no         no       RTL8822CE (rtw88), exclusive like its 8822BE cousin. Wi-Fi off during the window.
+OWLPROF
+        fi
+        ;;
+    esac
+    echo "==> Omdrop: adding the Omarchy plugin..."
+    omarchy plugin add "$OMDROP_PLUGIN_URL" 2>/dev/null || true
+  fi
+fi
+
+# ──────────────────────────────────────────
+# 10. Tormarchy — Tor toggle in the Omarchy bar (tripleu.tor)
+#     `--enable` places the widget in the bar (right section). `setup` is the
+#     root side (tor, nftables helper in /usr/local/bin, polkit rule, tor group);
+#     it is idempotent and must be re-run after `omarchy plugin update`.
+# ──────────────────────────────────────────
+TORMARCHY_PLUGIN_URL="https://github.com/TripleU613/tormarchy.git"
+TORMARCHY_DIR="$HOME/.config/omarchy/plugins/tripleu.tor"
+if [ "$IS_OMARCHY" = 1 ]; then
+  if [ ! -d "$TORMARCHY_DIR" ]; then
+    echo "==> Tormarchy: adding the Omarchy plugin..."
+    omarchy plugin add "$TORMARCHY_PLUGIN_URL" --enable --yes || true
+  fi
+  if [ -x "$TORMARCHY_DIR/tormarchy" ]; then
+    echo "==> Tormarchy: installing the system side (sudo)..."
+    sudo "$TORMARCHY_DIR/tormarchy" setup || echo "==> Tormarchy: setup failed — re-run: sudo $TORMARCHY_DIR/tormarchy setup"
+  fi
+else
+  echo "==> Tormarchy: Omarchy not detected — the bar plugin is Omarchy-only; skipping."
 fi
 
 echo ""

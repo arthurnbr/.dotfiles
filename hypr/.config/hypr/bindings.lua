@@ -44,3 +44,8 @@ if o.dictation_installed and o.dictation_installed() then
   o.bind("SUPER + CTRL + X", "Toggle dictation", "omarchy-dictation toggle")
   o.bind_hold("F9", "Start dictation (push-to-talk)", "omarchy-dictation start", "Stop dictation (push-to-talk)", "omarchy-dictation stop")
 end
+
+-- Wallpaper Engine dial (Omatrix) on SUPER + CTRL + SPACE
+-- (overrides Omarchy's default Background switcher on that key).
+hl.unbind("SUPER + CTRL + SPACE")
+o.bind("SUPER + CTRL + SPACE", "Wallpaper Engine picker", "omarchy-we omatrix")

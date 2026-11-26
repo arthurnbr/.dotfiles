@@ -3,9 +3,12 @@ import argparse
 import fcntl
 import http.server
 import os
+import re
 import socket
 import struct
+import subprocess
 import sys
+import threading
 
 
 def get_local_ip():
@@ -28,6 +31,7 @@ def main():
     parser = argparse.ArgumentParser(description="Quick local file sharing via HTTP")
     parser.add_argument("path", nargs="?", default=".", help="file or directory to share (default: current dir)")
     parser.add_argument("-p", "--port", type=int, default=8000)
+    parser.add_argument("-t", "--tunnel", action="store_true", help="expose via public URL (localhost.run)")
     args = parser.parse_args()
 
     target = os.path.abspath(args.path)
@@ -54,6 +58,21 @@ def main():
     if ts_ip:
         print(f"Tailscale: http://{ts_ip}:{args.port}{path_suffix}")
     print()
+
+    if args.tunnel:
+        def start_tunnel():
+            proc = subprocess.Popen(
+                ["ssh", "-o", "StrictHostKeyChecking=accept-new", "-R", f"80:localhost:{args.port}", "nokey@localhost.run"],
+                stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
+            )
+            for line in proc.stdout:
+                match = re.search(r"(https://[^\s]+)", line)
+                if match:
+                    url = match.group(1)
+                    print(f"Tunnel:    {url}{path_suffix}")
+                    print()
+                    break
+        threading.Thread(target=start_tunnel, daemon=True).start()
 
     handler = http.server.SimpleHTTPRequestHandler
     with http.server.HTTPServer(("0.0.0.0", args.port), handler) as server:

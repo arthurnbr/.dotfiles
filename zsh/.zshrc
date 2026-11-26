@@ -48,3 +48,7 @@ alias iphone-cast='uxplay -n "Arthur-PC" -vs waylandsink'
 
 # Machine-local overrides (not versioned), e.g. remote-eduvia containers: env owned by the platform
 [ -r ~/.zshrc.local ] && source ~/.zshrc.local
+# omp disables images inside herdr unless forced; herdr relays kitty graphics to the outer terminal
+[ -n "$HERDR_ENV" ] && export PI_FORCE_IMAGE_PROTOCOL=kitty
+
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv zsh)"
