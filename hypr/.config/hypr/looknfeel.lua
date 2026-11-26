@@ -18,3 +18,7 @@ hl.config({
 -- Find its class with: hyprctl clients
 -- o.transparent_window("my-app")
 -- o.transparent_window("my-app", "0.9 0.85") -- Custom active/inactive opacity.
+
+-- herdr-app (main app): a touch of transparency, more when unfocused.
+-- Drop Omarchy's default-opacity tag, then set our own active/inactive opacity.
+o.window("herdr-app", { tag = "-default-opacity", opacity = "0.90 0.82" })
