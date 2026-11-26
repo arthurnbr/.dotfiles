@@ -100,6 +100,26 @@ drop reports/temp files instead of polluting code repos.
 - **Bootstrap** — `setup*.sh` syncs the `2brain` lib (token already in `secrets`), lays down
   `~/2brain` + `~/2brain-scratch`. Design spec: `docs/2026-08-14-2brain-memory-design.md`.
 
+## Wallpaper Engine (live wallpapers, Omarchy)
+
+`setup-arch.sh` (section 11) installs the [`omarchy-wallpaper-engine`](https://github.com/dkgamer02ai/omarchy-wallpaper-engine)
+plugin + the `linux-wallpaperengine-git` AUR renderer, enables the plugin and
+adds the FPS watcher to Hyprland autostart. The plugin wires up the `omarchy-we`
+CLI, the **menu → Style → Wallpaper Engine** row (the Omatrix dial) and a
+theme-set hook. Two pieces live in this repo and travel via stow:
+
+- `hypr/bindings.lua` — **SUPER+CTRL+SPACE** opens the Omatrix dial (overrides
+  Omarchy's default *Background switcher* on that key).
+- `bin/.local/bin/omarchy-we-fps-watch` — caps the live wallpaper at **30 fps**
+  under the `power-saver` power profile, **60 fps** otherwise (relaunches the
+  renderer on profile change, only while a wallpaper is running).
+
+**Manual, per-machine** (not scriptable): install **Wallpaper Engine** on Steam
+(app 431960) and subscribe to some *scene*/*video* wallpapers — they land in
+`~/.local/share/Steam/steamapps/workshop/content/431960/`. Then
+`omarchy-we list` / the dial will show them. `web` wallpapers render poorly on
+Linux. Usage: `omarchy-we set <n|id|title>`, `next`/`prev`/`random`, `stop`.
+
 
 ## Stow a single package
 

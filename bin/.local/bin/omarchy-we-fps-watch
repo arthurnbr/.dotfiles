@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+# omarchy-we-fps-watch — switch the live wallpaper's frame-rate cap with the
+# power profile. power-saver → 30 fps, anything else → 60 fps.
+#
+# The FPS cap is read once when linux-wallpaperengine starts (omarchy-we reads
+# $OMARCHY_WE_FPS at launch), so a change means relaunching the saved wallpaper.
+# We only relaunch when a wallpaper is actually running, and only when the cap
+# would actually change, to avoid needless GPU restarts.
+set -euo pipefail
+
+SAVER_FPS=30
+NORMAL_FPS=60
+
+PPD_DEST=net.hadess.PowerProfiles
+PPD_PATH=/net/hadess/PowerProfiles
+
+CURRENT_FPS=""   # last cap we applied, so we skip no-op relaunches
+
+want_fps() {
+  # $1 = active profile; echo the cap it maps to.
+  [[ "$1" == "power-saver" ]] && echo "$SAVER_FPS" || echo "$NORMAL_FPS"
+}
+
+active_profile() {
+  gdbus call --system --dest "$PPD_DEST" --object-path "$PPD_PATH" \
+    --method org.freedesktop.DBus.Properties.Get \
+    "$PPD_DEST" ActiveProfile 2>/dev/null |
+    sed -n "s/.*'\\(.*\\)'.*/\\1/p"
+}
+
+we_running() {
+  pgrep -f 'linux-wallpaperengine[^ ]* .*--screen-root' >/dev/null 2>&1
+}
+
+apply() {
+  local profile fps
+  profile="$(active_profile)"
+  [[ -n "$profile" ]] || return 0
+  fps="$(want_fps "$profile")"
+  [[ "$fps" == "$CURRENT_FPS" ]] && return 0   # nothing to do
+  CURRENT_FPS="$fps"
+  we_running || return 0                        # no live wallpaper → nothing to relaunch
+  OMARCHY_WE_FPS="$fps" omarchy-we launch >/dev/null 2>&1 || true
+}
+
+# Apply once at startup to match the current profile, then react to changes.
+apply
+
+gdbus monitor --system --dest "$PPD_DEST" --object-path "$PPD_PATH" 2>/dev/null |
+while IFS= read -r line; do
+  [[ "$line" == *ActiveProfile* ]] && apply
+done

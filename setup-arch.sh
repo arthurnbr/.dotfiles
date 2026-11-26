@@ -340,6 +340,43 @@ else
   echo "==> Tormarchy: Omarchy not detected — the bar plugin is Omarchy-only; skipping."
 fi
 
+# ──────────────────────────────────────────
+# 11. Wallpaper Engine — live wallpapers on Omarchy (io.github.dkgamer02ai.wallpaper-engine)
+#     Renders Steam Wallpaper Engine scene/video wallpapers on the Hyprland
+#     background layer. `linux-wallpaperengine-git` (AUR) is the renderer; the
+#     plugin ships the omarchy-we CLI, the Omatrix dial, a theme-set hook and the
+#     menu > Style entry (its install.sh wires all that up, incl. the autostart
+#     `omarchy-we launch` line). Steam + subscribed wallpapers stay manual.
+#     Rebind SUPER+CTRL+SPACE -> Omatrix lives in hypr/bindings.lua (stowed).
+#     The power-profile FPS watcher (omarchy-we-fps-watch) is stowed in bin/.
+# ──────────────────────────────────────────
+WE_PLUGIN_URL="https://github.com/dkgamer02ai/omarchy-wallpaper-engine.git"
+WE_PLUGIN_DIR="$HOME/.config/omarchy/plugins/io.github.dkgamer02ai.wallpaper-engine"
+WE_AUTOSTART="$HOME/.config/hypr/autostart.lua"
+WE_FPS_LINE='o.launch_on_start("omarchy-we-fps-watch")'
+if [ "$IS_OMARCHY" = 1 ]; then
+  aur_install linux-wallpaperengine-git || echo "==> Wallpaper Engine: renderer install failed — live wallpapers will not render until: yay -S linux-wallpaperengine-git"
+  if [ ! -d "$WE_PLUGIN_DIR" ]; then
+    echo "==> Wallpaper Engine: adding the Omarchy plugin..."
+    omarchy plugin add "$WE_PLUGIN_URL" --enable --yes || true
+  fi
+  # install.sh links the CLI, drops the transparent bg, installs the theme-set
+  # hook, the menu row and the `omarchy-we launch` autostart line. --no-deps
+  # because the AUR renderer is handled above. Idempotent; safe to re-run.
+  if [ -x "$WE_PLUGIN_DIR/install.sh" ]; then
+    "$WE_PLUGIN_DIR/install.sh" --no-deps || echo "==> Wallpaper Engine: install.sh failed — re-run: $WE_PLUGIN_DIR/install.sh --no-deps"
+  fi
+  omarchy plugin enable io.github.dkgamer02ai.wallpaper-engine >/dev/null 2>&1 || true
+  # Add the power-profile FPS watcher to autostart (install.sh only adds the
+  # `omarchy-we launch` line). autostart.lua is omarchy-managed, so append in
+  # place rather than stow; guard against duplicates.
+  if [ -f "$WE_AUTOSTART" ] && ! grep -qF 'omarchy-we-fps-watch' "$WE_AUTOSTART"; then
+    printf '\n-- Switch Wallpaper Engine FPS cap with the power profile (power-saver -> 30 fps).\n%s\n' "$WE_FPS_LINE" >> "$WE_AUTOSTART"
+  fi
+else
+  echo "==> Wallpaper Engine: Omarchy not detected — the live-wallpaper plugin is Omarchy-only; skipping."
+fi
+
 echo ""
 echo "==> Done! Restart your shell or run: source ~/.zshrc"
 echo "==> For tmux plugins, open tmux and press: prefix + I"
